@@ -11,6 +11,6 @@ install:
  - cd $ARM_EABI
  - wget http://www.cl.cam.ac.uk/freshers/raspberrypi/tutorials/os/downloads/arm-none-eabi.tar.bz2
  - tar xjvf arm-none-eabi.tar.bz2
- - export PATH=$PATH:$ARM_EABI/arm2008q3/bin
+ - export PATH=$PATH:$ARM_EABI/arm-2008q3/bin
  - cd $ARTIFACTS
 script: make
