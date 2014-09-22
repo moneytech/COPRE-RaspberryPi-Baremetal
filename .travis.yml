@@ -8,7 +8,7 @@ before_install:
  - export ARM_EABI=$(pwd)
 # Install binutils
  - sudo wget http://ftp.gnu.org/gnu/binutils/binutils-2.24.tar.bz2
- - bzip2 -dc binutils-2.24.tar.bz2 | tar -xf -
+ - bzip2 -dc binutils-2.24.tar.bz2 | sudo tar -xf -
  - sudo mkdir build-binutils
  - cd build-binutils
  - sudo ../binutils-2.24/configure --target=arm-none-eabi --prefix=/opt/gnuarm
@@ -16,7 +16,7 @@ before_install:
  - sudo make install
 # Install GCC
  - sudo wget http://ftp.gnu.org/gnu/gcc/gcc-4.8.3/gcc-4.8.3.tar.bz2
- - sudo bzip2 -dc gcc-4.8.3.tar.bz2 | tar -xf -
+ - sudo bzip2 -dc gcc-4.8.3.tar.bz2 | sudo tar -xf -
  - sudo mkdir ../build-gcc
  - cd ../build-gcc
  - sudo ../gcc-4.8.3/configure --target=arm-none-eabi --prefix=/opt/gnuarm --without-headers --with-newlib  --with-gnu-as --with-gnu-ld --enable-languages='c'
