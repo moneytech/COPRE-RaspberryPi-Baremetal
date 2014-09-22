@@ -3,6 +3,9 @@ language: c
 # that Travis doesn't provide by default.
 compiler: gcc
 before_install:
+ - export ARTIFACTS=$(pwd)
+ - cd ../
+ - export ARM_EABI=$(pwd)
  - sudo wget http://ftp.gnu.org/gnu/binutils/binutils-2.24.tar.bz2
  - bzip2 -dc binutils-2.24.tar.bz2 | tar -xf -
  - sudo mkdir build-binutils
@@ -11,9 +14,7 @@ before_install:
  - sudo make -j 8 all
  - sudo make install
 install:
- - export ARTIFACTS=$(pwd)
- - cd ../
- - export ARM_EABI=$(pwd)
+ - cd $ARM_EABI
  - wget http://www.cl.cam.ac.uk/freshers/raspberrypi/tutorials/os/downloads/arm-none-eabi.tar.bz2
  - tar xjvf arm-none-eabi.tar.bz2
  - export PATH=$PATH:$ARM_EABI/arm2008q3/bin
