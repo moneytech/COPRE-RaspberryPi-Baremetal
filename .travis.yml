@@ -4,7 +4,7 @@ language: c
 compiler: gcc
 before_install:
  - sudo wget http://ftp.gnu.org/gnu/binutils/binutils-2.24.tar.bz2
- - bzip2 -dc binutils-2.24.tar.bz2 | tar -xf 
+ - bzip2 -dc binutils-2.24.tar.bz2 | tar -xf -
  - sudo mkdir build-binutils
  - cd build-binutils
  - sudo ../binutils-2.24/configure --target=arm-none-eabi --prefix=/opt/gnuarm
