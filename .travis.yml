@@ -15,13 +15,13 @@ before_install:
  - sudo make -j 8 all
  - sudo make install
 # Install GCC
- - wget http://ftp.gnu.org/gnu/gcc/gcc-4.8.3/gcc-4.8.3.tar.bz2
- - bzip2 -dc gcc-4.8.3.tar.bz2 | tar -xf -
- - mkdir ../build-gcc
+ - sudo wget http://ftp.gnu.org/gnu/gcc/gcc-4.8.3/gcc-4.8.3.tar.bz2
+ - sudo bzip2 -dc gcc-4.8.3.tar.bz2 | tar -xf -
+ - sudo mkdir ../build-gcc
  - cd ../build-gcc
- - ../gcc-4.8.3/configure --target=arm-none-eabi --prefix=/opt/gnuarm --without-headers --with-newlib  --with-gnu-as --with-gnu-ld --enable-languages='c'
- - make -j 8 all-gcc
- - make install-gcc
+ - sudo ../gcc-4.8.3/configure --target=arm-none-eabi --prefix=/opt/gnuarm --without-headers --with-newlib  --with-gnu-as --with-gnu-ld --enable-languages='c'
+ - sudo make -j 8 all-gcc
+ - sudo make install-gcc
 install:
  - cd $ARM_EABI
  - wget http://www.cl.cam.ac.uk/freshers/raspberrypi/tutorials/os/downloads/arm-none-eabi.tar.bz2
