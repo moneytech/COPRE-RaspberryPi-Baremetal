@@ -1,7 +1,7 @@
 COPRE-RaspberryPi-Baremetal
 =============================
-* __Master:__
-* __Dev:__
+* __Master:__ [![Build Status](https://travis-ci.org/nweedon/COPRE-RaspberryPi-Baremetal.svg)](https://travis-ci.org/nweedon/COPRE-RaspberryPi-Baremetal)
+* __Dev:__ [![Build Status](https://travis-ci.org/nweedon/COPRE-RaspberryPi-Baremetal.svg)](https://travis-ci.org/nweedon/COPRE-RaspberryPi-Baremetal)
 
 ####CT6COPRE Project
 'Console Programming Resolution' project - Baremetal functionality on the Raspberry Pi. 
