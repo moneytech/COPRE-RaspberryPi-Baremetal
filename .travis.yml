@@ -15,11 +15,12 @@ before_install:
  - sudo make -j 8 all
  - sudo make install
 # Install GCC
+ - cd $ARM_EABI
  - sudo wget http://ftp.gnu.org/gnu/gcc/gcc-4.8.3/gcc-4.8.3.tar.bz2
  - sudo bzip2 -dc gcc-4.8.3.tar.bz2 | sudo tar -xf -
- - sudo mkdir ../build-gcc
- - cd ../build-gcc
- - sudo ../gcc-4.8.3/configure --target=arm-none-eabi --prefix=/opt/gnuarm --without-headers --with-newlib  --with-gnu-as --with-gnu-ld --enable-languages='c'
+ - sudo mkdir build-gcc
+ - cd build-gcc
+ - sudo ../gcc-4.8.3/configure --target=arm-none-eabi --prefix=/opt/gnuarm --without-headers --with-newlib --with-gnu-as --with-gnu-ld --enable-languages='c'
  - sudo make -j 8 all-gcc
  - sudo make install-gcc
 install:
