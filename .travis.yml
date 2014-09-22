@@ -2,10 +2,6 @@ language: c
 # Compiler is irrelevant, we'll be using one
 # that Travis doesn't provide by default.
 compiler: gcc
-before_install:
- - sudo dpkg --add-architecture i386
- - sudo apt-get update
- - sudo apt-get install ia32-libs
 install:
  - export ARTIFACTS=$(pwd)
  - cd ../
