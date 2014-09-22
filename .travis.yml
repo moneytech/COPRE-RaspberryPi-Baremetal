@@ -1,0 +1,15 @@
+language: c
+# Compiler is irrelevant, we'll be using one
+# that Travis doesn't provide by default.
+compiler: gcc
+before_install:
+ - sudo apt-get install ia32-libs
+install:
+ - export ARTIFACTS=$(pwd)
+ - cd ../
+ - export ARM_EABI=$(pwd)
+ - wget http://www.cl.cam.ac.uk/freshers/raspberrypi/tutorials/os/downloads/arm-none-eabi.tar.bz2
+ - tar xjvf arm-none-eabi.tar.bz2
+ - export PATH=$PATH:$ARM_EABI/arm2008q3/bin
+ - cd $ARTIFACTS
+script: make
