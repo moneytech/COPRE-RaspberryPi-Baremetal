@@ -5,7 +5,7 @@ COPRE-RaspberryPi-Baremetal
 
 ####CT6COPRE Project
 'Console Programming Resolution' project - Baremetal functionality on the Raspberry Pi. 
-This is a university project - we are not currently accepting submissions.
+This is a university project - we are __not__ currently accepting submissions.
 Project template based on the [Baking Pi tutorials](www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os).
 
 ####Authors:
