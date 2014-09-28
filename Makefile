@@ -29,7 +29,7 @@ $(BUILD)%.o: $(SOURCE)%.s $(BUILD)
 
 # Build C files into Object files
 $(BUILD)%.o: $(SOURCE)%.c
-	$(GNU)-gcc -Wall -O2 -nostdlib -nostartfiles -ffreestanding -c $< -o $@
+	$(GNU)-gcc -Wall -O2 -nostdlib -nostartfiles -ffreestanding -fshort-wchar -c $< -o $@
 
 # Rule to make the elf file, using the linker
 $(BUILD)output.elf: $(ASM_OBJECTS) $(C_OBJECTS) $(KERNEL_LINKER)
