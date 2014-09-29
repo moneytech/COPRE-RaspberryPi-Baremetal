@@ -19,10 +19,12 @@ extern unsigned int GetUInt32(unsigned int);
 extern unsigned int GetTickCount(void);
 
 int Entrypoint(void) {
-	unsigned int ledState, ledCount, keyboardCount;
+	unsigned int ledState, ledCount;
 	ledState = OFF;
 	ledCount = GetTickCount();
-	keyboardCount = 0;
+
+	// Example Key Binding
+	//BindKey('a', OkLedOn);
 
 	while(1) {
 		// Switch state of OK/ACT LED every 1 second
@@ -36,28 +38,8 @@ int Entrypoint(void) {
 			}
 			ledCount = GetTickCount() + 1000000;
 		}
-
-		// Check for new connections / disconnections
-		UsbCheckForChange();
-		// Get the number of keyboards connected
-		keyboardCount = KeyboardCount();
 		
-		// Execute input operations if there is at least
-		// one keyboard connected
-		if(keyboardCount > 0) {
-			unsigned int addr = KeyboardGetAddress(0);
-			if(KeyboardGetKeyDownCount(addr) > 0) {
-				/*if(ledState == ON) {
-					OkLedOff();
-					ledState = OFF;
-				}*/
-			} else {
-				/*if(ledState == OFF) {
-					OkLedOn();
-					ledState = ON;
-				}*/
-			}
-		}
+		ProcessKeyboardEvents();
 	}
 
 	return 0;
