@@ -36,9 +36,6 @@ extern unsigned int KeyboardGetKeyDownCount(unsigned int);
 extern bool KeyboadGetKeyIsDown(unsigned int, unsigned short);
 extern bool KeyboardGetKeyDown(unsigned int, unsigned int);
 
-extern void OkLedOn();
-extern void OkLedOff();
-
 keyBinding keyBindings[26] = { 	NULL, NULL, NULL, NULL, NULL, NULL,
 								NULL, NULL, NULL, NULL, NULL, NULL,
 								NULL, NULL, NULL, NULL, NULL, NULL,
@@ -81,7 +78,7 @@ void ProcessKeyboardEvents(void) {
 	unsigned int address;
 	bool keyDown;
 	int i;
-	
+
 	// Check for new connections / disconnections
 	UsbCheckForChange();
 	
