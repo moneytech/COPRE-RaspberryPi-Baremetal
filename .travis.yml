@@ -15,8 +15,8 @@ install:
 # - export PATH=$PATH:$ARM_EABI/arm2008q3/bin
 # Install newer embedded toolchain
 # https://launchpad.net/~terry.guo/+archive/ubuntu/gcc-arm-embedded
- - sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded
+ - sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded --yes
  - sudo apt-get update
- - sudo-apt-get install gcc-arm-none-eabi
+ - sudo apt-get install gcc-arm-none-eabi
  - cd $ARTIFACTS
 script: make
