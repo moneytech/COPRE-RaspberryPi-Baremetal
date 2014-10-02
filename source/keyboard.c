@@ -36,6 +36,7 @@ extern unsigned int KeyboardGetKeyDownCount(unsigned int);
 extern bool KeyboadGetKeyIsDown(unsigned int, unsigned short);
 extern bool KeyboardGetKeyDown(unsigned int, unsigned int);
 
+keyBinding keyboardDisconnectedFunc = NULL;
 keyBinding keyBindings[26] = { 	NULL, NULL, NULL, NULL, NULL, NULL,
 								NULL, NULL, NULL, NULL, NULL, NULL,
 								NULL, NULL, NULL, NULL, NULL, NULL,
@@ -74,6 +75,10 @@ void UnbindKey(unsigned char code) {
 	keyBindings[index] = NULL;
 }
 
+void OnKeyboardDisconnected(keyBinding func) {
+	keyboardDisconnectedFunc = func;
+}
+
 void ProcessKeyboardEvents(void) {
 	unsigned int address;
 	bool keyDown;
@@ -101,5 +106,9 @@ void ProcessKeyboardEvents(void) {
 		}
 
 		KeyboardPoll(address);
+	} else {
+		if(keyboardDisconnectedFunc != NULL) {
+			keyboardDisconnectedFunc();
+		}
 	}
 }

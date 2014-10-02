@@ -11,5 +11,6 @@ typedef void (*keyBinding)(void);
 
 extern unsigned int KeyCode(char);
 extern void BindKey(unsigned char code, keyBinding event);
+extern void OnKeyboardDisconnected(keyBinding func);
 extern void UnbindKey(unsigned char code);
 extern void ProcessKeyboardEvents(void);
