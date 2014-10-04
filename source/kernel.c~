@@ -16,6 +16,8 @@ extern void OkLedOff(void);
 extern void PutUInt32(unsigned int, unsigned int);
 extern unsigned int GetUInt32(unsigned int);
 
+extern unisgned int InitGraphics(unsigned int, unsigned int, unsigned int);
+
 extern unsigned int GetTickCount(void);
 
 int Entrypoint(void) {

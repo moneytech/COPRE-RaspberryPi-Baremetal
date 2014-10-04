@@ -6,6 +6,7 @@
 ****************************************************/
 
 #include "keyboard.h"
+#include "graphics.h"
 
 #define ON 1
 #define OFF 0
@@ -19,9 +20,11 @@ extern unsigned int GetUInt32(unsigned int);
 extern unsigned int GetTickCount(void);
 
 int Entrypoint(void) {
-	unsigned int ledState, ledCount;
+	unsigned int ledState, ledCount, graphicsInitilised;
 	ledState = OFF;
 	ledCount = GetTickCount();
+
+	graphicsInitilised = InitGraphics(800,600,32);
 
 	// Example Key Binding
 	//BindKey('a', OkLedOn);
@@ -39,7 +42,12 @@ int Entrypoint(void) {
 			ledCount = GetTickCount() + 1000000;
 		}
 		
-		ProcessKeyboardEvents();
+		//ProcessKeyboardEvents();
+
+		if (graphicsInitilised == 1)
+		{
+			UpdateGraphics();
+		}
 	}
 
 	return 0;
