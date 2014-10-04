@@ -15,5 +15,6 @@ install:
  - sudo apt-get update
  - sudo apt-get install gcc-arm-none-eabi
  - sudo apt-get build-dep python-imaging
+ - pip install PIL --allow-external PIL --allow-unverified PIL
  - cd $ARTIFACTS
 script: make
