@@ -189,25 +189,25 @@ void UpdateGraphics(void)
 {
 	RenderBackground();
 
-	RenderPixel(401,300,0x0000000F);
-	RenderPixel(402,300,0x0000000F);
-	RenderPixel(403,300,0x0000000F);
-	RenderPixel(404,300,0x0000000F);
+	RenderPixel(401, 300, 0x0000000F);
+	RenderPixel(402, 300, 0x0000000F);
+	RenderPixel(403, 300, 0x0000000F);
+	RenderPixel(404, 300, 0x0000000F);
 
-	RenderPixel(401,301,0x0000000F);
-	RenderPixel(402,301,0x0000000F);
-	RenderPixel(403,301,0x0000000F);
-	RenderPixel(404,301,0x0000000F);
+	RenderPixel(401, 301, 0x0000000F);
+	RenderPixel(402, 301, 0x0000000F);
+	RenderPixel(403, 301, 0x0000000F);
+	RenderPixel(404, 301, 0x0000000F);
 
-	RenderPixel(401,302,0x0000000F);
-	RenderPixel(402,302,0x0000000F);
-	RenderPixel(403,302,0x0000000F);
-	RenderPixel(404,302,0x0000000F);
+	RenderPixel(401, 302, 0x0000000F);
+	RenderPixel(402, 302, 0x0000000F);
+	RenderPixel(403, 302, 0x0000000F);
+	RenderPixel(404, 302, 0x0000000F);
 
-	RenderPixel(401,303,0x0000000F);
-	RenderPixel(402,303,0x0000000F);
-	RenderPixel(403,303,0x0000000F);
-	RenderPixel(404,303,0x0000000F);	
+	RenderPixel(401, 303, 0x0000000F);
+	RenderPixel(402, 303, 0x0000000F);
+	RenderPixel(403, 303, 0x0000000F);
+	RenderPixel(404, 303, 0x0000000F);	
 }
 
 

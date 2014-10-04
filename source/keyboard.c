@@ -18,6 +18,8 @@
 #define KEYBOARD_TIMEOUT -8
 #define KEYBOARD_DISCONNECTED -9
 
+#define MAX_KEYS 26
+
 #ifndef __cplusplus
 	typedef enum {
 		false = 0,
@@ -25,29 +27,35 @@
 	} bool;
 #endif
 
+typedef enum {
+	OK = 0,
+	ErrorGeneral = -1,
+	ErrorArgument = -2,
+	ErrorRetry = -3,
+	ErrorDevice = -4,
+	ErrorIncompatible = -5,
+	ErrorCompiler = -6,
+	ErrorMemory = -7,
+	ErrorTimeout = -8,
+	ErrorDisconnected = -9,
+} Result;
+
 typedef void (*keyBinding)(void);
 
 /* External links to CSUD functions */
 extern void UsbCheckForChange(void);
 extern unsigned int KeyboardCount(void);
 extern unsigned int KeyboardGetAddress(unsigned int);
-extern unsigned int KeyboardPoll(unsigned int);
+extern Result KeyboardPoll(unsigned int);
 extern unsigned int KeyboardGetKeyDownCount(unsigned int);
 extern bool KeyboadGetKeyIsDown(unsigned int, unsigned short);
 extern bool KeyboardGetKeyDown(unsigned int, unsigned int);
 
-keyBinding keyboardDisconnectedFunc = NULL;
-keyBinding keyBindings[26] = { 	NULL, NULL, NULL, NULL, NULL, NULL,
-								NULL, NULL, NULL, NULL, NULL, NULL,
-								NULL, NULL, NULL, NULL, NULL, NULL,
-								NULL, NULL, NULL, NULL, NULL, NULL,
-								NULL, NULL };
+keyBinding keyboardDisconnectedFunc;
+keyBinding keyBindings[MAX_KEYS];
+bool keyWasDown[MAX_KEYS];
 
-bool keyWasDown[26] = { false, false, false, false, false, false,
-						false, false, false, false, false, false,
-						false, false, false, false, false, false,
-						false, false, false, false, false, false,
-						false, false };
+unsigned int keyboardAddress;						
 
 bool KeyboardGetKeyIsDown(unsigned int addr, unsigned short keycode) {
 	return KeyboadGetKeyIsDown(addr, keycode);
@@ -79,22 +87,22 @@ void OnKeyboardDisconnected(keyBinding func) {
 	keyboardDisconnectedFunc = func;
 }
 
-void ProcessKeyboardEvents(void) {
-	unsigned int address;
-	bool keyDown;
-	int i;
-
+void DetectKeyboards(void) {
 	// Check for new connections / disconnections
 	UsbCheckForChange();
+	keyboardAddress = KeyboardGetAddress(0);
+}
+
+void ProcessKeyboardEvents(void) {
+	bool keyDown;
+	int i;
 	
 	// Execute input operations if there is at least
 	// one keyboard connected
 	if(KeyboardCount() > 0) {
-		address = KeyboardGetAddress(0);
-
 		for(i = 0; i < 26; i++) {
 			if(keyBindings[i] != NULL) {
-				keyDown = KeyboardGetKeyIsDown(address, i + 4);
+				keyDown = KeyboardGetKeyIsDown(keyboardAddress, i + 4);
 				// Key has to be down for at least 2 polls:
 				// this stops dodgy input periods
 				if(keyWasDown[i] == true && keyDown == true) {
@@ -105,10 +113,25 @@ void ProcessKeyboardEvents(void) {
 			}
 		}
 
-		KeyboardPoll(address);
+		if(KeyboardPoll(keyboardAddress) != OK) {
+			DetectKeyboards();
+		}
 	} else {
 		if(keyboardDisconnectedFunc != NULL) {
 			keyboardDisconnectedFunc();
 		}
+
+		DetectKeyboards();
 	}
+}
+
+void KeyboardInit(void) {
+	int i;
+	for(i = 0; i < MAX_KEYS; i++) {
+		keyBindings[i] = NULL;
+		keyWasDown[i] = false;
+	}
+
+	keyboardDisconnectedFunc = NULL;
+	keyboardAddress = 0;
 }

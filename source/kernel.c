@@ -20,11 +20,11 @@ extern unsigned int GetUInt32(unsigned int);
 extern unsigned int GetTickCount(void);
 
 int Entrypoint(void) {
-	unsigned int ledState, ledCount, graphicsInitilised;
+	unsigned int ledState, ledCount, graphicsInitialised;
 	ledState = OFF;
 	ledCount = GetTickCount();
 
-	graphicsInitilised = InitGraphics(800,600,32);
+	graphicsInitialised = InitGraphics(800, 600, 32);
 
 	// Example Key Binding
 	//BindKey('a', OkLedOn);
@@ -42,10 +42,9 @@ int Entrypoint(void) {
 			ledCount = GetTickCount() + 1000000;
 		}
 		
-		//ProcessKeyboardEvents();
+		ProcessKeyboardEvents();
 
-		if (graphicsInitilised == 1)
-		{
+		if (graphicsInitialised == 1) {
 			UpdateGraphics();
 		}
 	}

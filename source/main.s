@@ -37,6 +37,7 @@ str r1,[r0,#4]
 */
 mov sp, #0x8000
 bl UsbInitialise
+bl KeyboardInit
 
 /*
 * Move to the C Entry Point
