@@ -13,7 +13,7 @@ install:
  - sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded --yes
  - sudo apt-get update
  - sudo apt-get install gcc-arm-none-eabi
- - sudo add-apt-repository ppa:fkrull/deadsnakes
+ - sudo add-apt-repository ppa:fkrull/deadsnakes --yes
  - sudo apt-get update
  - sudo apt-get install python2.7
  - cd $ARTIFACTS
