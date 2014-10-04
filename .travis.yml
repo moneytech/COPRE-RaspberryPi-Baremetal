@@ -14,6 +14,7 @@ install:
  - sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded --yes
  - sudo apt-get update
  - sudo apt-get install gcc-arm-none-eabi
+ - sudo apt-get install libjpeg-dev zlib1g-dev
  - pip install PIL --allow-external PIL --allow-unverified PIL
  - cd $ARTIFACTS
 script: make
