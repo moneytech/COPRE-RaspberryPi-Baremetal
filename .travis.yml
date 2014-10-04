@@ -16,5 +16,7 @@ install:
  - sudo apt-get install gcc-arm-none-eabi
  - sudo apt-get install libjpeg-dev zlib1g-dev
  - pip install PIL --allow-external PIL --allow-unverified PIL
+ - sudo ln -s /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib
+ - sudo ln -s /usr/lib/x86_64-linux-gnu/libz.so /usr/lib
  - cd $ARTIFACTS
 script: make
