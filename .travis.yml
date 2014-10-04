@@ -14,6 +14,6 @@ install:
  - sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded --yes
  - sudo apt-get update
  - sudo apt-get install gcc-arm-none-eabi
- - pip install PIL
+ - pip install PIL --allow-external PIL --allow-unverified PIL
  - cd $ARTIFACTS
 script: make
