@@ -161,7 +161,7 @@ void RenderBackground(void)
 	{
 		for (j = 0; j < m_screenHeight; j++)
 		{
-			PutUInt32(frameAddr, 0xD3D3D3FF);
+			PutUInt32(frameAddr, 0xFFD3D3D3);
 			// move the frame buffer on 4 bytes for the next pixel
 			frameAddr += m_bitDepth / 8;
 		}
