@@ -5,7 +5,7 @@
 # 	Niall Frederick Weedon (nweedon)
 # 	Tim Stanley (Spike71m)
 ######################################################
-import Image
+from PIL import Image
 import argparse
 import os
 import struct
