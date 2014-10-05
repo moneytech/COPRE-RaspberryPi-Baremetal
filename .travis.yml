@@ -14,7 +14,5 @@ install:
  - sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded --yes
  - sudo apt-get update
  - sudo apt-get install gcc-arm-none-eabi
-# - cd ~
-# - sudo pip install pillow -U
  - cd $ARTIFACTS
 script: make

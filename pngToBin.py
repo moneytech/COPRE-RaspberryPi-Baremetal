@@ -5,8 +5,10 @@
 # 	Niall Frederick Weedon (nweedon)
 # 	Tim Stanley (Spike71m)
 ######################################################
-from PIL import Image
-#import Image
+
+# PyPNG by drj11:
+# https://github.com/drj11/pypng
+import png
 import argparse
 import os
 import struct
@@ -16,13 +18,9 @@ parser.add_argument('--image', dest='image', help='The image file to convert')
 args = parser.parse_args()
 
 if args.image:
-	try:
-		im = Image.open(args.image)
-	except IOError:
-		print "Error: File does not exist."
-		quit(1)
+	r = png.Reader(args.image)
 
-	data = list(im.getdata())
+	data = list(r.read()[2])
 	filename = args.image.split('/');
 	filename = filename[len(filename) - 1]
 
@@ -35,8 +33,9 @@ if args.image:
 
 	# Pixels are stored in ARGB format
 	for x in data:
-		raw = (255 << 24) + (x[2] << 16) + (x[1] << 8) + x[0]
-		f.write(struct.pack('I', raw))
+		for i in range(0, len(x), 3):
+			raw = (255 << 24) + (x[i + 2] << 16) + (x[i + 1] << 8) + x[i]
+			f.write(struct.pack('I', raw))
 
 	f.close()
 else:
