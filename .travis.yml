@@ -1,7 +1,8 @@
-language: c
+language: python
 # Compiler is irrelevant, we'll be using one
 # that Travis doesn't provide by default.
-compiler: gcc
+python: 
+ - "2.7"
 before_install:
  - export ARTIFACTS=$(pwd)
  - cd ../
@@ -10,8 +11,8 @@ before_install:
  - sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch
 install:
  - cd $ARM_EABI
- - wget http://www.cl.cam.ac.uk/freshers/raspberrypi/tutorials/os/downloads/arm-none-eabi.tar.bz2
- - tar xjvf arm-none-eabi.tar.bz2
- - export PATH=$PATH:$ARM_EABI/arm-2008q3/bin
+ - sudo add-apt-repository ppa:terry.guo/gcc-arm-embedded --yes
+ - sudo apt-get update
+ - sudo apt-get install gcc-arm-none-eabi
  - cd $ARTIFACTS
 script: make

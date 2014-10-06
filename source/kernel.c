@@ -2,8 +2,11 @@
 * kernel.c
 * By:
 *  Niall Frederick Weedon (nweedon)
-*  Tim Stanley (Spike71m)
+*  Tim Stanley (Spike71m) test
 ****************************************************/
+
+#include "keyboard.h"
+#include "graphics.h"
 
 #define ON 1
 #define OFF 0
@@ -17,9 +20,14 @@ extern unsigned int GetUInt32(unsigned int);
 extern unsigned int GetTickCount(void);
 
 int Entrypoint(void) {
-	unsigned int ledState, ledCount;
+	unsigned int ledState, ledCount, graphicsInitialised;
 	ledState = OFF;
 	ledCount = GetTickCount();
+
+	graphicsInitialised = InitGraphics(800, 600, 32);
+
+	// Example Key Binding
+	//BindKey('a', OkLedOn);
 
 	while(1) {
 		// Switch state of OK/ACT LED every 1 second
@@ -32,6 +40,12 @@ int Entrypoint(void) {
 				ledState = ON;
 			}
 			ledCount = GetTickCount() + 1000000;
+		}
+		
+		ProcessKeyboardEvents();
+
+		if (graphicsInitialised == 1) {
+			UpdateGraphics();
 		}
 	}
 

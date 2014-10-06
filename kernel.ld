@@ -26,7 +26,7 @@ SECTIONS {
 	* Next we put the data.
 	*/
 	.data : {
-		*(.data)
+		*(.data*)
 		*.c.o(*)
 	}
 	
@@ -34,8 +34,13 @@ SECTIONS {
 	* Next we put the rest of the code.
 	*/
 	.text : {
-		*.c.o(.text)
-		*(.text)
+		*.c.o(.text*)
+		*(.text*)
+	}
+
+	.bss : {
+		*(.bss*)
+		*(COMMON)
 	}
 
 	/*
