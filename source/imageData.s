@@ -8,5 +8,6 @@
 .section .data
 .align 4
 
-image_test:
-	.incbin "bin/test.png.bin"
+.globl imageSplash
+imageSplash:
+	.incbin "bin/splash.png.bin"

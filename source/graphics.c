@@ -11,6 +11,8 @@ extern unsigned int GetUInt32(unsigned int);
 extern void OkLedOn(void);
 extern void OkLedOff(void);
 
+extern unsigned int imageSplash;
+
 #define MAILBOX_READ 0x2000B880
 #define MAILBOX_STATUS 0x2000B898
 #define MAILBOX_WRITE 0x2000B8A0
@@ -23,7 +25,6 @@ static unsigned int m_screenWidth;
 static unsigned int m_screenHeight;
 static unsigned int m_bitDepth;
 static unsigned int m_framebufferAddress;
-
 
 unsigned int MailboxWrite(unsigned int input, unsigned int mailbox)
 {
@@ -141,10 +142,10 @@ unsigned int InitGraphics(unsigned int screenWidth, unsigned int screenHeight, u
 		return 0;
 	}
 
-	unsigned int frameBufferResponce;
-	frameBufferResponce = MailboxRead(1);
+	unsigned int frameBufferResponse;
+	frameBufferResponse = MailboxRead(1);
 
-	if (frameBufferResponce == 0)
+	if (frameBufferResponse == 0)
 	{
 		m_framebufferAddress = GetUInt32(0x40040020);
 		return 1;
@@ -159,13 +160,13 @@ void RenderBackground(void)
 	int i, j;
 	for (i = 0; i < m_screenWidth; i++)
 	{
-		for (j = 0; j < m_screenHeight; j++)
+		for (j = 0; j < m_screenWidth; j++)
 		{
 			PutUInt32(frameAddr, 0xFFD3D3D3);
 			// move the frame buffer on 4 bytes for the next pixel
 			frameAddr += m_bitDepth / 8;
 		}
-	} 
+	}
 }
 
 void RenderPixel(unsigned int x, unsigned int y, unsigned int colour)
@@ -180,14 +181,27 @@ void RenderPixel(unsigned int x, unsigned int y, unsigned int colour)
 	unsigned int offset;
 	offset = y * m_screenWidth;
 	offset += x;
-	offset *= m_bitDepth / 8;
+	//offset *= m_bitDepth / 8;
+	offset *= (m_bitDepth >> 3);
 
 	PutUInt32(frameAddr + offset, colour);
 }
 
+void RenderImage(unsigned int x, unsigned y, unsigned int width, unsigned int height, unsigned int imageAddress) {
+	int i, j, colour;
+
+	for(i = 0; i < height; i++) {
+		for(j = 0; j < width; j++) {
+			colour = GetUInt32(imageAddress);
+			RenderPixel(x + j, y + i, colour);
+			imageAddress += 4;
+		}
+	}
+}
+
 void UpdateGraphics(void)
 {
-	RenderBackground();
+	/*RenderBackground();
 
 	RenderPixel(401, 300, 0x0000000F);
 	RenderPixel(402, 300, 0x0000000F);
@@ -207,8 +221,7 @@ void UpdateGraphics(void)
 	RenderPixel(401, 303, 0x0000000F);
 	RenderPixel(402, 303, 0x0000000F);
 	RenderPixel(403, 303, 0x0000000F);
-	RenderPixel(404, 303, 0x0000000F);	
+	RenderPixel(404, 303, 0x0000000F);*/
+
+	RenderImage(0, 0, 800, 600, (unsigned int)&imageSplash);
 }
-
-
-

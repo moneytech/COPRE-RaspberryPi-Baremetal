@@ -20,14 +20,18 @@ extern unsigned int GetUInt32(unsigned int);
 extern unsigned int GetTickCount(void);
 
 int Entrypoint(void) {
-	unsigned int ledState, ledCount, graphicsInitialised;
+	unsigned int ledState, ledCount, graphicsInitialised, frameCount;
 	ledState = OFF;
-	ledCount = GetTickCount();
+	ledCount = frameCount = GetTickCount();
 
 	graphicsInitialised = InitGraphics(800, 600, 32);
 
 	// Example Key Binding
-	//BindKey('a', OkLedOn);
+	BindKey('a', OkLedOn);
+
+	if (graphicsInitialised == 1) {
+		UpdateGraphics();
+	}
 
 	while(1) {
 		// Switch state of OK/ACT LED every 1 second
@@ -39,14 +43,10 @@ int Entrypoint(void) {
 				OkLedOn();
 				ledState = ON;
 			}
-			ledCount = GetTickCount() + 1000000;
+			ledCount = GetTickCount();
 		}
 		
 		ProcessKeyboardEvents();
-
-		if (graphicsInitialised == 1) {
-			UpdateGraphics();
-		}
 	}
 
 	return 0;
