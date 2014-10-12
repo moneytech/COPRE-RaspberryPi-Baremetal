@@ -187,7 +187,8 @@ void RenderPixel(unsigned int x, unsigned int y, unsigned int colour)
 	PutUInt32(frameAddr + offset, colour);
 }
 
-void RenderImage(unsigned int x, unsigned y, unsigned int width, unsigned int height, unsigned int imageAddress) {
+void RenderImage(unsigned int x, unsigned y, unsigned int width, unsigned int height, unsigned int imageAddress) 
+{
 	int i, j, colour;
 
 	for(i = 0; i < height; i++) {
@@ -199,29 +200,32 @@ void RenderImage(unsigned int x, unsigned y, unsigned int width, unsigned int he
 	}
 }
 
+// NO ERROR CHECKING
+void RenderPartImage(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int offsetX, unsigned offsetY, unsigned int imageWidth, unsigned int imageHeight, unsigned int imageAddress)
+{
+	int i, j, colour, imgAddress;
+
+	imgAddress = imageAddress;
+	imgAddress += ((offsetY * imageWidth) + offsetX) * 4;
+	for(i = 0; i < height; i++) 
+	{
+		for(j = 0; j < width; j++) 
+		{
+			colour = GetUInt32(imgAddress);
+			RenderPixel(x + j, y + i, colour);
+			imgAddress += 4;
+		}
+
+		imgAddress += (imageWidth - width) * 4;
+	}
+
+}
+
 void UpdateGraphics(void)
 {
-	/*RenderBackground();
+	//RenderBackground();
 
-	RenderPixel(401, 300, 0x0000000F);
-	RenderPixel(402, 300, 0x0000000F);
-	RenderPixel(403, 300, 0x0000000F);
-	RenderPixel(404, 300, 0x0000000F);
+	//RenderImage(0, 0, 800, 600, (unsigned int)&imageSplash);
 
-	RenderPixel(401, 301, 0x0000000F);
-	RenderPixel(402, 301, 0x0000000F);
-	RenderPixel(403, 301, 0x0000000F);
-	RenderPixel(404, 301, 0x0000000F);
-
-	RenderPixel(401, 302, 0x0000000F);
-	RenderPixel(402, 302, 0x0000000F);
-	RenderPixel(403, 302, 0x0000000F);
-	RenderPixel(404, 302, 0x0000000F);
-
-	RenderPixel(401, 303, 0x0000000F);
-	RenderPixel(402, 303, 0x0000000F);
-	RenderPixel(403, 303, 0x0000000F);
-	RenderPixel(404, 303, 0x0000000F);*/
-
-	RenderImage(0, 0, 800, 600, (unsigned int)&imageSplash);
+	//RenderPartImage(0,0,800,600,0,0,800,600,(unsigned int)&imageSplash);
 }

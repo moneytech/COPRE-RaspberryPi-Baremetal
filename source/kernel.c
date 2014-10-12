@@ -7,6 +7,7 @@
 
 #include "keyboard.h"
 #include "graphics.h"
+#include "debug.h"
 
 #define ON 1
 #define OFF 0
@@ -30,17 +31,19 @@ int Entrypoint(void) {
 	BindKey('a', OkLedOn);
 
 	if (graphicsInitialised == 1) {
-		UpdateGraphics();
+		//UpdateGraphics();
+		//unsigned char text [8] = "Working";
+		DebugLog();
 	}
 
 	while(1) {
 		// Switch state of OK/ACT LED every 1 second
 		if(GetTickCount() > ledCount + 1000000) {
 			if(ledState == ON) {
-				OkLedOff();
+				//OkLedOff();
 				ledState = OFF;
 			} else {
-				OkLedOn();
+				//OkLedOn();
 				ledState = ON;
 			}
 			ledCount = GetTickCount();
