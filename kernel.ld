@@ -27,7 +27,6 @@ SECTIONS {
 	*/
 	.data : {
 		*(.data*)
-		*.c.o(*)
 	}
 	
 	/* 
@@ -36,6 +35,10 @@ SECTIONS {
 	.text : {
 		*.c.o(.text*)
 		*(.text*)
+	}
+
+	.rodata : {
+		*(.rodata*)
 	}
 
 	.bss : {

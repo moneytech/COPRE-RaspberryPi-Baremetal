@@ -49,7 +49,7 @@ extern unsigned int KeyboardGetAddress(unsigned int);
 extern Result KeyboardPoll(unsigned int);
 extern unsigned int KeyboardGetKeyDownCount(unsigned int);
 extern bool KeyboadGetKeyIsDown(unsigned int, unsigned short);
-extern bool KeyboardGetKeyDown(unsigned int, unsigned int);
+extern unsigned short KeyboardGetKeyDown(unsigned int, unsigned int);
 
 keyBinding keyboardDisconnectedFunc;
 keyBinding keyBindings[MAX_KEYS];
@@ -96,11 +96,11 @@ void DetectKeyboards(void) {
 void ProcessKeyboardEvents(void) {
 	bool keyDown;
 	int i;
-	
+
 	// Execute input operations if there is at least
 	// one keyboard connected
 	if(KeyboardCount() > 0) {
-		for(i = 0; i < 26; i++) {
+		for(i = 0; i < MAX_KEYS; i++) {
 			if(keyBindings[i] != NULL) {
 				keyDown = KeyboardGetKeyIsDown(keyboardAddress, i + 4);
 				// Key has to be down for at least 2 polls:
@@ -108,7 +108,6 @@ void ProcessKeyboardEvents(void) {
 				if(keyWasDown[i] == true && keyDown == true) {
 					keyBindings[i]();
 				}
-
 				keyWasDown[i] = keyDown;
 			}
 		}
@@ -120,7 +119,6 @@ void ProcessKeyboardEvents(void) {
 		if(keyboardDisconnectedFunc != NULL) {
 			keyboardDisconnectedFunc();
 		}
-
 		DetectKeyboards();
 	}
 }
@@ -133,5 +131,5 @@ void KeyboardInit(void) {
 	}
 
 	keyboardDisconnectedFunc = NULL;
-	keyboardAddress = 0;
+	keyboardAddress = KeyboardGetAddress(0);
 }

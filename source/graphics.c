@@ -55,7 +55,7 @@ unsigned int MailboxWrite(unsigned int input, unsigned int mailbox)
 	}
 
 	//add the mailbox "chanel" onto the input
-	unsigned int finalMessage = input + mailbox;
+	unsigned int finalMessage; finalMessage = input + mailbox;
 
 	//store the value at the write address ( address, value)
 	PutUInt32(MAILBOX_WRITE, finalMessage);
@@ -112,32 +112,32 @@ unsigned int InitGraphics(unsigned int screenWidth, unsigned int screenHeight, u
 	//Set up the frame buffer info
 
 	//physical width of the screen
-	PutUInt32(0x40040000, m_screenWidth);
+	PutUInt32(0x44040000, m_screenWidth);
 	//physical height of the screen
-	PutUInt32(0x40040004, m_screenHeight);
+	PutUInt32(0x44040004, m_screenHeight);
 	//virtual width of the screen
-	PutUInt32(0x40040008, m_screenWidth);
+	PutUInt32(0x44040008, m_screenWidth);
 	// virtual height of the screen
-	PutUInt32(0x4004000C, m_screenHeight);
+	PutUInt32(0x4404000C, m_screenHeight);
 	//pitch ( number of bytes between each row of the frame buffer) set by the GPU ( set to 0 for now )
-	PutUInt32(0x40040010, 0);
+	PutUInt32(0x44040010, 0);
 	//bit depth
-	PutUInt32(0x40040014, m_bitDepth);
+	PutUInt32(0x44040014, m_bitDepth);
 	// X offset
-	PutUInt32(0x40040018, 0);
+	PutUInt32(0x44040018, 0);
 	// Y offset
-	PutUInt32(0x4004001C, 0);
+	PutUInt32(0x4404001C, 0);
 	// pointer returned by the GPU ( set to 0 for now )r
-	PutUInt32(0x40040020, 0);
+	PutUInt32(0x44040020, 0);
 	// size of the frame buffer, set by the GPU ( set to 0 for now )
-	PutUInt32(0x40040024, 0);
+	PutUInt32(0x44040024, 0);
 
 	// !!!! This seems to break the system, looks like we dont need to add on 0x40000000. !!!!
 	// add on 0x40000000 into the value in the frame buffer to specify how to write it to the structure, this will make the GPU clear its cache so we can see the result
 	//PutUInt32(0x40040000, (GetUInt32(0x40040000) + 0x40000000));
 
 	// send the frame buffer info to channel 1
-	if (MailboxWrite(0x40040000, 1) == 0)
+	if (MailboxWrite(0x44040000, 1) == 0)
 	{
 		return 0;
 	}
@@ -147,7 +147,7 @@ unsigned int InitGraphics(unsigned int screenWidth, unsigned int screenHeight, u
 
 	if (frameBufferResponse == 0)
 	{
-		m_framebufferAddress = GetUInt32(0x40040020);
+		m_framebufferAddress = GetUInt32(0x44040020);
 		return 1;
 	}
 	return 0;
@@ -223,9 +223,6 @@ void RenderPartImage(unsigned int x, unsigned int y, unsigned int width, unsigne
 
 void UpdateGraphics(void)
 {
-	//RenderBackground();
-
-	//RenderImage(0, 0, 800, 600, (unsigned int)&imageSplash);
-
-	//RenderPartImage(0,0,800,600,0,0,800,600,(unsigned int)&imageSplash);
+	RenderBackground();
+	RenderImage(0, 0, 800, 600, (unsigned int)&imageSplash);
 }
