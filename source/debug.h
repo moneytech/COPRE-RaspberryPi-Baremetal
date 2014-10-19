@@ -5,4 +5,6 @@
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
-extern void DebugLog();
+extern void DebugLog(char *);
+extern void InitDebug();
+extern void RenderDebugLog();

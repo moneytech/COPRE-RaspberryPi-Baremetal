@@ -12,6 +12,7 @@ extern void OkLedOn(void);
 extern void OkLedOff(void);
 
 extern unsigned int imageSplash;
+extern unsigned int imageFont;
 
 #define MAILBOX_READ 0x2000B880
 #define MAILBOX_STATUS 0x2000B898
@@ -219,6 +220,21 @@ void RenderPartImage(unsigned int x, unsigned int y, unsigned int width, unsigne
 		imgAddress += (imageWidth - width) * 4;
 	}
 
+}
+
+void RenderFont(char * text,unsigned int x, unsigned int y)
+{
+	//char text [6];
+	//text[0] = 'h'; text[1] = 'e'; text[2] = 'l'; text[3] = 'l'; text[4] = 'o'; text[5] = 0;
+
+	unsigned int counter; counter = 0;
+	while (text[counter] != 0) 
+	{
+		unsigned int yOffset; yOffset = ((text[counter] - 32) / 16);
+		unsigned int xOffset; xOffset = ((text[counter] - 32) - (yOffset * 16));
+		RenderPartImage(x + (counter * 8),y,8,16,xOffset * 8,yOffset * 16,128,96,(unsigned int)&imageFont);
+		counter++;
+	} 
 }
 
 void UpdateGraphics(void)

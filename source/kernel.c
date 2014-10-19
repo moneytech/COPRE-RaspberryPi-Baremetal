@@ -37,6 +37,10 @@ int Entrypoint(void) {
 	ledCount = frameCount = GetTickCount();
 
 	graphicsInitialised = InitGraphics(800, 600, 32);
+	InitDebug();
+	DebugLog("This is a test of the debug log");
+	DebugLog("It should be a good test of the debug");
+	DebugLog("DEBUG!");
 
 	// Example Key Binding
 	//BindKey('a', ToggleDebugger);
@@ -47,9 +51,9 @@ int Entrypoint(void) {
 			if(graphicsInitialised == 1) {
 				UpdateGraphics();
 				
-				//if(renderDebugger == ON) {
-					DebugLog();
-				//}
+				if(renderDebugger == ON) {
+					RenderDebugLog();
+				}
 
 				frameCount = GetTickCount();		
 			}
