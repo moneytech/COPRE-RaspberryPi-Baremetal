@@ -35,12 +35,11 @@ SECTIONS
 	} > RAM
    
     . = ALIGN(4096); /* align to page size */
-   
-   _bss_start = .;
-   
+      
     .bss :
 	{
-	  *(.bss*)
+   		_bss_start = .;
+		*(.bss*)
 	} > RAM
    
     . = ALIGN(4096); /* align to page size */

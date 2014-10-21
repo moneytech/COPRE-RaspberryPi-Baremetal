@@ -7,6 +7,8 @@
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
+#include "debug.h"
+
 #define NULL 0
 /* CSUD Return Codes */
 #define KEYBOARD_SUCCESS 0
@@ -105,7 +107,8 @@ void ProcessKeyboardEvents(void) {
 				keyDown = KeyboardGetKeyIsDown(keyboardAddress, i + 4);
 				// Key has to be down for at least 2 polls:
 				// this stops dodgy input periods
-				if(keyWasDown[i] == true && keyDown == true) {
+				if(keyDown == true) {
+					DebugLog("Firing key-bound event.");
 					keyBindings[i]();
 				}
 				keyWasDown[i] = keyDown;

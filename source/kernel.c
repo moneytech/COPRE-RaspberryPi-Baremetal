@@ -5,6 +5,7 @@
 *  Tim Stanley (Spike71m) test
 ****************************************************/
 
+#include "../include/csud/platform.h"
 #include "keyboard.h"
 #include "graphics.h"
 #include "debug.h"
@@ -19,9 +20,12 @@ extern void PutUInt32(unsigned int, unsigned int);
 extern unsigned int GetUInt32(unsigned int);
 
 extern unsigned int GetTickCount(void);
+extern void UsbCheckForChange(void);
 
 extern unsigned char _bss_start;
 extern unsigned char _bss_end;
+
+extern unsigned int allocated;
 
 unsigned int renderDebugger;
 
@@ -33,6 +37,10 @@ void ToggleDebugger(void) {
 	}
 }
 
+void TestPrint(void) {
+	DebugLog("Key pressed!");
+}
+
 void _Setup(void) {
 	// Zero out .bss
 	unsigned char* dst;
@@ -40,6 +48,8 @@ void _Setup(void) {
 	while(dst < &_bss_end) {
 		*dst++ = 0;
 	}
+
+	//allocated = 0;
 }
 
 int Entrypoint(void) {
@@ -55,7 +65,7 @@ int Entrypoint(void) {
 	DebugLog("DEBUG!");*/
 
 	// Example Key Binding
-	//BindKey('a', ToggleDebugger);
+	BindKey('a', TestPrint);
 
 	while(1) {
 		// Limit to 60 FPS
