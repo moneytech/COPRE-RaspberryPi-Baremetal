@@ -1,56 +1,59 @@
-/******************************************************************************
-*	kernel.ld
-*	 Original by Alex Chadwick (www.cl.cam.ac.uk/projects/raspberrypi/tutorials/os)
-*	
-*	Modified by:
-*	 Niall Frederick Weedon (nweedon)
-* 	 Tim Stanley (Spike71m)
-*
-*	A linker script for generation of raspberry pi kernel images, with C
-*	code.
-******************************************************************************/
+MEMORY
+{
+    RAM : ORIGIN = 0x8000, LENGTH = 256M
+}
 
-SECTIONS {
-	/*
-	* First and formost we need the .init section, containing the code to 
-        * be run first. We allow room for the ATAGs and stack and conform to 
-        * the bootloader's expectation by putting this code at 0x8000.
-	*/
-	.init 0x8000 : {
+heap_size = 200M;
+
+SECTIONS
+{
+	.init : 
+	{
 		*(.init)
 		*(.led)
 		*(.mem)
-	}
-	
-	/* 
-	* Next we put the data.
-	*/
-	.data : {
+	} > RAM
+
+	. = ALIGN(4096);
+
+	.data :
+	{
 		*(.data*)
-	}
-	
-	/* 
-	* Next we put the rest of the code.
-	*/
-	.text : {
-		*.c.o(.text*)
-		*(.text*)
-	}
+	} > RAM
 
-	.rodata : {
-		*(.rodata*)
-	}
-
-	.bss : {
-		*(.bss*)
+	COMMON :
+	{
 		*(COMMON)
-	}
+	} > RAM
 
-	/*
-	* Finally comes everything else. A fun trick here is to put all other 
-	* sections into this section, which will be discarded by default.
-	*/
-	/DISCARD/ : {
-		*(*)
-	}
+    .text :
+	{
+	  *(.text)          /* .text sections (code) */
+	  *(.text*)             /* .text* sections (code) */
+	  *(.rodata)            /* .rodata sections (constants, strings, etc.) */
+	  *(.rodata*)           /* .rodata* sections (constants, strings, etc.) */
+	} > RAM
+   
+    . = ALIGN(4096); /* align to page size */
+   
+   _bss_start = .;
+   
+    .bss :
+	{
+	  *(.bss*)
+	} > RAM
+   
+    . = ALIGN(4096); /* align to page size */
+
+	_bss_end = .;
+
+	. = ALIGN(4);
+
+	.heap :
+	{
+	    _heap_start = .;
+	    . = . + heap_size;
+	            _heap_end = .;
+	} > RAM
+   
 }

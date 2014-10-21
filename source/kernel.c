@@ -20,6 +20,9 @@ extern unsigned int GetUInt32(unsigned int);
 
 extern unsigned int GetTickCount(void);
 
+extern unsigned char _bss_start;
+extern unsigned char _bss_end;
+
 unsigned int renderDebugger;
 
 void ToggleDebugger(void) {
@@ -27,6 +30,15 @@ void ToggleDebugger(void) {
 		renderDebugger = OFF;
 	} else {
 		renderDebugger = ON;
+	}
+}
+
+void _Setup(void) {
+	// Zero out .bss
+	unsigned char* dst;
+	dst = &_bss_start;
+	while(dst < &_bss_end) {
+		*dst++ = 0;
 	}
 }
 
