@@ -37,10 +37,10 @@ int Entrypoint(void) {
 	ledCount = frameCount = GetTickCount();
 
 	graphicsInitialised = InitGraphics(800, 600, 32);
-	InitDebug();
-	DebugLog("This is a test of the debug log");
+	//InitDebug();
+	/*DebugLog("This is a test of the debug log");
 	DebugLog("It should be a good test of the debug");
-	DebugLog("DEBUG!");
+	DebugLog("DEBUG!");*/
 
 	// Example Key Binding
 	//BindKey('a', ToggleDebugger);

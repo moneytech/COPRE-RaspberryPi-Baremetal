@@ -32,6 +32,8 @@ lsl r1,#18
 
 str r1,[r0,#4]
 
+bl InitDebug
+
 /*
 * Initialise the USB Driver
 */
