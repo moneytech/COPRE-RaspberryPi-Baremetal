@@ -5,6 +5,9 @@
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
+#include "debug.h"
+#include "graphics_asm.h"
+
 extern void PutUInt32(unsigned int, unsigned int);
 extern unsigned int GetUInt32(unsigned int);
 
@@ -26,6 +29,12 @@ static unsigned int m_screenWidth;
 static unsigned int m_screenHeight;
 static unsigned int m_bitDepth;
 static unsigned int m_framebufferAddress;
+
+unsigned int bgColour;
+
+unsigned int GetFramebufferAddress(void) {
+	return m_framebufferAddress;
+}
 
 unsigned int MailboxWrite(unsigned int input, unsigned int mailbox)
 {
@@ -109,7 +118,7 @@ unsigned int InitGraphics(unsigned int screenWidth, unsigned int screenHeight, u
 	m_screenHeight = screenHeight;
 	m_bitDepth = bitDepth;
 
-
+	bgColour = 0xFFD3D3D3;
 	//Set up the frame buffer info
 
 	//physical width of the screen
@@ -163,7 +172,7 @@ void RenderBackground(void)
 	{
 		for (j = 0; j < m_screenWidth; j++)
 		{
-			PutUInt32(frameAddr, 0xFFD3D3D3);
+			PutUInt32(frameAddr, bgColour);
 			// move the frame buffer on 4 bytes for the next pixel
 			frameAddr += m_bitDepth / 8;
 		}

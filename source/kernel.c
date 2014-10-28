@@ -68,20 +68,9 @@ int Entrypoint(void) {
 	BindKey('a', TestPrint);
 
 	while(1) {
-		// Limit to 60 FPS
-		if(GetTickCount() > frameCount + (1000000 / 60)) {
-			if(graphicsInitialised == 1) {
-				UpdateGraphics();
-				
-				if(renderDebugger == ON) {
-					RenderDebugLog();
-				}
-
-				frameCount = GetTickCount();		
-			}
-		}
-
+		UpdateGraphics();
 		ProcessKeyboardEvents();
+		RenderDebugLog();
 
 		// Switch state of OK/ACT LED every 1 second
 		if(GetTickCount() > ledCount + 1000000) {

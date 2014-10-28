@@ -7,6 +7,7 @@
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
+#include "../include/csud/platform.h"
 #include "debug.h"
 
 #define NULL 0
@@ -92,21 +93,28 @@ void OnKeyboardDisconnected(keyBinding func) {
 void DetectKeyboards(void) {
 	// Check for new connections / disconnections
 	UsbCheckForChange();
-	keyboardAddress = KeyboardGetAddress(0);
+	if(KeyboardCount() > 0) {
+		keyboardAddress = KeyboardGetAddress(0);
+	}
 }
 
 void ProcessKeyboardEvents(void) {
 	bool keyDown;
 	int i;
 
-	// Execute input operations if there is at least
-	// one keyboard connected
-	if(KeyboardCount() > 0) {
+	// Retrieve the keyboard address if we
+	// haven't stored one yet.
+	if(keyboardAddress == 0) {
+		DetectKeyboards();
+	}
+
+	// After detecting the keyboard
+	// successfully, detect key events
+	if(keyboardAddress != 0) {
 		for(i = 0; i < MAX_KEYS; i++) {
 			if(keyBindings[i] != NULL) {
 				keyDown = KeyboardGetKeyIsDown(keyboardAddress, i + 4);
-				// Key has to be down for at least 2 polls:
-				// this stops dodgy input periods
+
 				if(keyDown == true) {
 					DebugLog("Firing key-bound event.");
 					keyBindings[i]();
@@ -115,9 +123,7 @@ void ProcessKeyboardEvents(void) {
 			}
 		}
 
-		if(KeyboardPoll(keyboardAddress) != OK) {
-			DetectKeyboards();
-		}
+		KeyboardPoll(keyboardAddress);
 	} else {
 		if(keyboardDisconnectedFunc != NULL) {
 			keyboardDisconnectedFunc();
