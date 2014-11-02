@@ -118,7 +118,8 @@ unsigned int InitGraphics(unsigned int screenWidth, unsigned int screenHeight, u
 	m_screenHeight = screenHeight;
 	m_bitDepth = bitDepth;
 
-	bgColour = 0xFFD3D3D3;
+	//bgColour = 0xFFD3D3D3;
+	bgColour = 0xFF000000;
 	//Set up the frame buffer info
 
 	//physical width of the screen
@@ -167,8 +168,6 @@ void RenderBackground(void)
 {
 	int i, j;
 
-	//DebugLog("Rendering Background");
-
 	for (i = 0; i < m_screenHeight; i++)
 	{
 		for (j = 0; j < m_screenWidth; j++)
@@ -176,8 +175,6 @@ void RenderBackground(void)
 			backBuffer[j][i] = bgColour;
 		}
 	}
-
-	//DebugLog("Done Rendering Background");
 }
 
 void RenderPixel(unsigned int x, unsigned int y, unsigned int colour)
@@ -202,19 +199,17 @@ void RenderImage(unsigned int x, unsigned y, unsigned int width, unsigned int he
 {
 	int i, j, colour;
 
-	//DebugLog("Rendering Image");
-
 	for(i = y; i < (y + height); i++) {
 		for(j = x; j < (x + width); j++) {
 			colour = *imageAddress++;
 
-			if((x + j) >= 0 && (x + j) < 800 && (y + i) >= 0 && (y + i) < 600) {
-				backBuffer[j][i] = colour;
+			if(colour != 0xFFFFFFFF) {
+				if((x + j) >= 0 && (x + j) < 800 && (y + i) >= 0 && (y + i) < 600) {
+					backBuffer[j][i] = colour;
+				}
 			}
 		}
 	}
-
-	//DebugLog("Done Rendering Image");
 }
 
 // NO ERROR CHECKING
@@ -263,8 +258,6 @@ void SwapBuffers(void) {
 	unsigned int temp;
 	unsigned int frameAddr; frameAddr = m_framebufferAddress;
 
-	//DebugLog("Swapping Buffers");
-
 	for(i = 0; i < 600; i++) {
 		for(j = 0; j < 800; j++) {
 			// Get the current value from the frame buffer
@@ -285,7 +278,6 @@ void SwapBuffers(void) {
 
 void UpdateGraphics(void)
 {
-	DebugLog("++++++++++");
 	// All graphics should be rendered to the
 	// back buffer.
 	RenderBackground();
@@ -295,5 +287,5 @@ void UpdateGraphics(void)
 	// frame buffer.
 	SwapBuffers();
 
-	DebugLog("----------");
+	bgColour += 0x00010101;
 }
