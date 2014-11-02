@@ -6,7 +6,6 @@
 ****************************************************/
 
 #include "debug.h"
-#include "graphics_asm.h"
 
 extern void PutUInt32(unsigned int, unsigned int);
 extern unsigned int GetUInt32(unsigned int);
@@ -31,6 +30,7 @@ static unsigned int m_bitDepth;
 static unsigned int m_framebufferAddress;
 
 unsigned int bgColour;
+unsigned int backBuffer[800][600];
 
 unsigned int GetFramebufferAddress(void) {
 	return m_framebufferAddress;
@@ -165,18 +165,19 @@ unsigned int InitGraphics(unsigned int screenWidth, unsigned int screenHeight, u
 
 void RenderBackground(void)
 {
-	unsigned int frameAddr; frameAddr = m_framebufferAddress;
-	// sets the entire screen to white
 	int i, j;
-	for (i = 0; i < m_screenWidth; i++)
+
+	//DebugLog("Rendering Background");
+
+	for (i = 0; i < m_screenHeight; i++)
 	{
 		for (j = 0; j < m_screenWidth; j++)
 		{
-			PutUInt32(frameAddr, bgColour);
-			// move the frame buffer on 4 bytes for the next pixel
-			frameAddr += m_bitDepth / 8;
+			backBuffer[j][i] = bgColour;
 		}
 	}
+
+	//DebugLog("Done Rendering Background");
 }
 
 void RenderPixel(unsigned int x, unsigned int y, unsigned int colour)
@@ -197,54 +198,102 @@ void RenderPixel(unsigned int x, unsigned int y, unsigned int colour)
 	PutUInt32(frameAddr + offset, colour);
 }
 
-void RenderImage(unsigned int x, unsigned y, unsigned int width, unsigned int height, unsigned int imageAddress) 
+void RenderImage(unsigned int x, unsigned y, unsigned int width, unsigned int height, unsigned int* imageAddress) 
 {
 	int i, j, colour;
 
-	for(i = 0; i < height; i++) {
-		for(j = 0; j < width; j++) {
-			colour = GetUInt32(imageAddress);
-			RenderPixel(x + j, y + i, colour);
-			imageAddress += 4;
+	//DebugLog("Rendering Image");
+
+	for(i = y; i < (y + height); i++) {
+		for(j = x; j < (x + width); j++) {
+			colour = *imageAddress++;
+
+			if((x + j) >= 0 && (x + j) < 800 && (y + i) >= 0 && (y + i) < 600) {
+				backBuffer[j][i] = colour;
+			}
 		}
 	}
+
+	//DebugLog("Done Rendering Image");
 }
 
 // NO ERROR CHECKING
-void RenderPartImage(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int offsetX, unsigned offsetY, unsigned int imageWidth, unsigned int imageHeight, unsigned int imageAddress)
+void RenderPartImage(unsigned int x, unsigned int y, unsigned int width, unsigned int height, unsigned int offsetX, unsigned offsetY, unsigned int imageWidth, unsigned int imageHeight, unsigned int* imageAddress)
 {
-	int i, j, colour, imgAddress;
+	int i, j, colour;
+	unsigned int* imgAddress;
 
-	imgAddress = imageAddress;
-	imgAddress += ((offsetY * imageWidth) + offsetX) * 4;
-	for(i = 0; i < height; i++) 
-	{
-		for(j = 0; j < width; j++) 
+	if(imageAddress != 0) {
+		imgAddress = imageAddress;
+		imgAddress += ((offsetY * imageWidth) + offsetX);
+
+		for(i = 0; i < height; i++) 
 		{
-			colour = GetUInt32(imgAddress);
-			RenderPixel(x + j, y + i, colour);
-			imgAddress += 4;
+			for(j = 0; j < width; j++) 
+			{
+				if((x + j) >= 0 && (x + j) < 800 && (y + i) >= 0 && (y + i) < 600) {
+					colour = *imgAddress++;
+					backBuffer[x + j][y + i] = colour;
+				}
+			}
+
+			imgAddress += (imageWidth - width);
 		}
-
-		imgAddress += (imageWidth - width) * 4;
 	}
-
 }
 
-void RenderFont(char * text,unsigned int x, unsigned int y)
+void RenderFont(char * text, unsigned int x, unsigned int y)
 {
 	unsigned int counter; counter = 0;
-	while (text[counter] != 0) 
-	{
-		unsigned int yOffset; yOffset = ((text[counter] - 32) / 16);
-		unsigned int xOffset; xOffset = ((text[counter] - 32) - (yOffset * 16));
-		RenderPartImage(x + (counter * 8),y,8,16,xOffset * 8,yOffset * 16,128,96,(unsigned int)&imageFont);
-		counter++;
-	} 
+	unsigned int xOffset, yOffset;
+
+	if(text != 0) {
+		while (text[counter] != 0) 
+		{
+			yOffset = ((text[counter] - 32) / 16);
+			xOffset = ((text[counter] - 32) - (yOffset * 16));
+			RenderPartImage(x + (counter * 8), y, 8, 16, xOffset * 8, yOffset * 16, 128, 96, &imageFont);
+			counter++;
+		}
+	}
+}
+
+void SwapBuffers(void) {
+	int i, j;
+	unsigned int temp;
+	unsigned int frameAddr; frameAddr = m_framebufferAddress;
+
+	//DebugLog("Swapping Buffers");
+
+	for(i = 0; i < 600; i++) {
+		for(j = 0; j < 800; j++) {
+			// Get the current value from the frame buffer
+			// and store it temporarily
+			temp = GetUInt32(frameAddr);
+			// Place the value of the backbuffer into
+			// the framebuffer
+			PutUInt32(frameAddr, backBuffer[j][i]);
+			// Store the value attained temporarily into
+			// the backbuffer
+			backBuffer[j][i] = temp;
+			frameAddr += 4;
+		}
+	}
+
+	//DebugLog("Done Swapping Buffers");
 }
 
 void UpdateGraphics(void)
 {
+	DebugLog("++++++++++");
+	// All graphics should be rendered to the
+	// back buffer.
 	RenderBackground();
-	RenderImage(0, 0, 800, 600, (unsigned int)&imageSplash);
+	RenderImage(0, 0, 800, 600, &imageSplash);
+	RenderDebugLog();
+	// Swap the back buffer info with that of the
+	// frame buffer.
+	SwapBuffers();
+
+	DebugLog("----------");
 }

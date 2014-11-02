@@ -38,7 +38,11 @@ void RenderDebugLog()
 {
 	int i;
 
+	DebugLog("Rendering Debug Log");
+
 	for(i = 0; i < MAX_LINES; i++) {
 		RenderFont(lines[i], 0, 580 - (i * 16));
 	}
+
+	DebugLog("Done Rendering Debug Log");
 }

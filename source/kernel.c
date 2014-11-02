@@ -48,8 +48,6 @@ void _Setup(void) {
 	while(dst < &_bss_end) {
 		*dst++ = 0;
 	}
-
-	//allocated = 0;
 }
 
 int Entrypoint(void) {
@@ -59,18 +57,15 @@ int Entrypoint(void) {
 	ledCount = frameCount = GetTickCount();
 
 	graphicsInitialised = InitGraphics(800, 600, 32);
-	//InitDebug();
-	/*DebugLog("This is a test of the debug log");
-	DebugLog("It should be a good test of the debug");
-	DebugLog("DEBUG!");*/
 
 	// Example Key Binding
 	BindKey('a', TestPrint);
 
 	while(1) {
-		UpdateGraphics();
-		ProcessKeyboardEvents();
-		RenderDebugLog();
+		if(graphicsInitialised == 1) {
+			UpdateGraphics();
+			frameCount++;
+		}
 
 		// Switch state of OK/ACT LED every 1 second
 		if(GetTickCount() > ledCount + 1000000) {
@@ -82,6 +77,11 @@ int Entrypoint(void) {
 				ledState = ON;
 			}
 			ledCount = GetTickCount();
+
+			LogPrintF("%d FPS", frameCount);
+			frameCount = 0;
+
+			ProcessKeyboardEvents();
 		}
 	}
 
