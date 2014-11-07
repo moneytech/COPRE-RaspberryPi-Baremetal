@@ -8,7 +8,7 @@
 ****************************************************/
 
 #include "../include/csud/platform.h"
-#include "debug.h"
+#include "../include/debug.h"
 
 #define NULL 0
 /* CSUD Return Codes */

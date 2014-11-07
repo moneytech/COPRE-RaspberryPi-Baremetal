@@ -6,9 +6,10 @@
 ****************************************************/
 
 #include "../include/csud/platform.h"
-#include "keyboard.h"
-#include "graphics.h"
-#include "debug.h"
+#include "../include/keyboard.h"
+#include "../include/graphics.h"
+#include "../include/debug.h"
+#include "../include/types.h"
 
 #define ON 1
 #define OFF 0

@@ -5,7 +5,7 @@
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
-#include "graphics.h"
+#include "../include/graphics.h"
 
 #define MAX_LINES 35
 
