@@ -17,40 +17,21 @@
 extern void OkLedOn(void);
 extern void OkLedOff(void);
 
-extern void PutUInt32(unsigned int, unsigned int);
-extern unsigned int GetUInt32(unsigned int);
-
 extern unsigned int GetTickCount(void);
 extern void UsbCheckForChange(void);
 
-extern unsigned char _bss_start;
-extern unsigned char _bss_end;
-
-extern unsigned int allocated;
-
 unsigned int renderDebugger;
-
-void ToggleDebugger(void) {
-	if(renderDebugger == ON) {
-		renderDebugger = OFF;
-	} else {
-		renderDebugger = ON;
-	}
-}
 
 void TestPrint(void) {
 	DebugLog("Key pressed!");
 }
 
-void _Setup(void) {
-	// Zero out .bss
-	unsigned char* dst;
-	dst = &_bss_start;
-	while(dst < &_bss_end) {
-		*dst++ = 0;
-	}
-}
-
+/*
+* Entrypoint:
+* Main entry point for the kernel. This function is
+* called after previous parts of the kernel have
+* been set up.
+*/
 int Entrypoint(void) {
 	unsigned int ledState, ledCount, graphicsInitialised, frameCount, tick;
 	int framesRendered;

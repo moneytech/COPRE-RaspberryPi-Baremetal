@@ -9,11 +9,12 @@
 
 #define MAX_LINES 35
 
-extern void PutUInt32(unsigned int, unsigned int);
-extern unsigned int GetUInt32(unsigned int);
-
 char* lines[MAX_LINES];
 
+/*
+* InitDebug:
+* Initialise data ready to handle debug information.
+*/
 void InitDebug()
 {
 	int i;
@@ -23,6 +24,11 @@ void InitDebug()
 	}
 }
 
+/*
+* DebugLog:
+* Add a message to the debug logger.
+* char* text: The message to add to the logger.
+*/
 void DebugLog(char * text)
 {
 	int i;
@@ -34,6 +40,10 @@ void DebugLog(char * text)
 	lines[0] = text;
 }
 
+/*
+* RenderDebugLog:
+* Render the debug log to the screen.
+*/
 void RenderDebugLog()
 {
 	int i;

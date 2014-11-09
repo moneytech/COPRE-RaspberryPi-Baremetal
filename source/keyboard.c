@@ -8,42 +8,11 @@
 ****************************************************/
 
 #include "../include/csud/platform.h"
+#include "../include/csud/types.h"
+#include "../include/types.h"
 #include "../include/debug.h"
 
-#define NULL 0
-/* CSUD Return Codes */
-#define KEYBOARD_SUCCESS 0
-#define KEYBOARD_INVALID_ARGUMENT -2
-#define KEYBOARD_BAD_DEVICE_RESPONSE -4
-#define KEYBOARD_INCOMPATIBLE -5
-#define KEYBOARD_BROKEN_LIBRARY -6
-#define KEYBOARD_OUT_OF_MEMORY -7
-#define KEYBOARD_TIMEOUT -8
-#define KEYBOARD_DISCONNECTED -9
-
 #define MAX_KEYS 26
-
-#ifndef __cplusplus
-	typedef enum {
-		false = 0,
-		true = 1,
-	} bool;
-#endif
-
-typedef enum {
-	OK = 0,
-	ErrorGeneral = -1,
-	ErrorArgument = -2,
-	ErrorRetry = -3,
-	ErrorDevice = -4,
-	ErrorIncompatible = -5,
-	ErrorCompiler = -6,
-	ErrorMemory = -7,
-	ErrorTimeout = -8,
-	ErrorDisconnected = -9,
-} Result;
-
-typedef void (*keyBinding)(void);
 
 /* External links to CSUD functions */
 extern void UsbCheckForChange(void);
@@ -64,7 +33,15 @@ bool KeyboardGetKeyIsDown(unsigned int addr, unsigned short keycode) {
 	return KeyboadGetKeyIsDown(addr, keycode);
 }
 
-unsigned int KeyCode(char code) {
+/*
+* KeyCode:
+* Return key code for a specific character, in the region
+* CSUD recognises.
+* char code: The key code to convert
+*
+* Returns: (u32) Key code in the range CSUD recognises.
+*/
+u32 KeyCode(char code) {
 	if(code >= 'a' && code <= 'z') {
 		return code - 93;
 	} else if(code >= 'A' && code <= 'Z') {
@@ -74,22 +51,46 @@ unsigned int KeyCode(char code) {
 	}
 }
 
-void BindKey(unsigned char code, keyBinding event) {
-	unsigned int index;
+/*
+* BindKey:
+* Bind an event to a particular keyboard key.
+* char code: The key code to bind the event to
+* keyBinding event: The event to call when the key is pressed.
+*
+* Returns: (u32) Key code in the range CSUD recognises.
+*/
+void BindKey(char code, keyBinding event) {
+	u32 index;
 	index = KeyCode(code) - 4;
 	keyBindings[index] = event;
 }
 
-void UnbindKey(unsigned char code) {
-	unsigned int index;
+/*
+* UnbindKey:
+* Unbind an event to a particular keyboard key.
+* char code: The key event to unbind
+*/
+void UnbindKey(char code) {
+	u32 index;
 	index = KeyCode(code) - 4;
 	keyBindings[index] = NULL;
 }
 
+/*
+* OnKeyboardDisconnected:
+* Set up a function to be called when a 
+* keyboard is disconnected.
+* keyBinding func: The event to call when a keyboard is disconnected.
+*/
 void OnKeyboardDisconnected(keyBinding func) {
 	keyboardDisconnectedFunc = func;
 }
 
+/*
+* DetectKeyboards:
+* Detect changes in the USB driver and assign a new
+* keyboard if necessary.
+*/
 void DetectKeyboards(void) {
 	// Check for new connections / disconnections
 	UsbCheckForChange();
@@ -98,6 +99,11 @@ void DetectKeyboards(void) {
 	}
 }
 
+/*
+* ProcessKeyboardEvents:
+* Main keyboard event processing function. Checks key
+* states and triggers events if a key is pressed.
+*/
 void ProcessKeyboardEvents(void) {
 	bool keyDown;
 	int i;
@@ -132,6 +138,11 @@ void ProcessKeyboardEvents(void) {
 	}
 }
 
+/*
+* KeyboardInit:
+* Initialise data structures ready for keyboard
+* processing.
+*/
 void KeyboardInit(void) {
 	int i;
 	for(i = 0; i < MAX_KEYS; i++) {

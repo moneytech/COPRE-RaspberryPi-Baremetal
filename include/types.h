@@ -7,10 +7,13 @@
 
 #pragma once
 
+#define NULL 0
+
 extern void PutUInt32(unsigned int, unsigned int);
 extern unsigned int GetUInt32(unsigned int);
 
 typedef unsigned int u32;
+typedef void (*keyBinding)(void);
 
 typedef struct framebuffer_init_t {
 	u32 width;
