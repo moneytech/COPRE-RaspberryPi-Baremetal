@@ -8,9 +8,13 @@
 #include "../include/debug.h"
 #include "../include/types.h"
 #include "../include/mailbox.h"
+#include "../include/v3d-qpu.h"
 
 extern void PutUInt32(unsigned int, unsigned int);
 extern unsigned int GetUInt32(unsigned int);
+
+extern void memcpy(void* dest, void* source, unsigned int count);
+extern void* memset(void* dest, int c, unsigned int count);
 
 // ----- Image data -----
 extern unsigned int imageSplash;
@@ -23,7 +27,7 @@ static unsigned int m_bitDepth;
 static unsigned int m_framebufferAddress;
 
 unsigned int bgColour;
-unsigned int backBuffer[800][600];
+unsigned int backBuffer[600][800];
 
 unsigned int GetFramebufferAddress(void) {
 	return m_framebufferAddress;
@@ -48,7 +52,8 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 	bgColour = 0xFF000000;
 
 	// Set up the frame buffer info	
-	framebuffer_init_t* init = (framebuffer_init_t*)0x44040000;
+	framebuffer_init_t* init __attribute__((aligned(16)))
+		= (framebuffer_init_t*)0x44040000;
 	
 	init->width = m_screenWidth;
 	init->height = m_screenHeight;
@@ -62,7 +67,7 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 	init->size = 0;
 
 	// send the frame buffer info to channel 1
-	if (MailboxWrite(&init, 1) == 0)
+	if (MailboxWrite((u32)init, 1) == 0)
 	{
 		return 0;
 	}
@@ -85,15 +90,8 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 */
 void RenderBackground(void)
 {
-	int i, j;
-
-	for (i = 0; i < m_screenHeight; i++)
-	{
-		for (j = 0; j < m_screenWidth; j++)
-		{
-			backBuffer[j][i] = bgColour;
-		}
-	}
+	//memset(&backBuffer, bgColour, 800 * 600 * sizeof(unsigned int));
+	GPUClearScreen(m_framebufferAddress);
 }
 
 /*
@@ -107,19 +105,7 @@ void RenderBackground(void)
 */
 void RenderImage(u32 x, u32 y, u32 width, u32 height, u32* imageAddress) 
 {
-	int i, j, colour;
-
-	for(i = y; i < (y + height); i++) {
-		for(j = x; j < (x + width); j++) {
-			colour = *imageAddress++;
-
-			if(colour != 0xFFFFFFFF) {
-				if((x + j) >= 0 && (x + j) < 800 && (y + i) >= 0 && (y + i) < 600) {
-					backBuffer[j][i] = colour;
-				}
-			}
-		}
-	}
+	memcpy(&backBuffer, imageAddress, width * height * sizeof(unsigned int));
 }
 
 /*
@@ -150,7 +136,7 @@ void RenderPartImage(u32 x, u32 y, u32 width, u32 height, u32 offsetX, u32 offse
 			{
 				if((x + j) >= 0 && (x + j) < 800 && (y + i) >= 0 && (y + i) < 600) {
 					colour = *imgAddress++;
-					backBuffer[x + j][y + i] = colour;
+					backBuffer[y + i][x + j] = colour;
 				}
 			}
 
@@ -187,17 +173,8 @@ void RenderFont(char * text, u32 x, u32 y)
 * Swap the frame buffer with the back buffer.
 */
 void SwapBuffers(void) {
-	int i, j;
 	unsigned int frameAddr; frameAddr = m_framebufferAddress;
-
-	for(i = 0; i < 600; i++) {
-		for(j = 0; j < 800; j++) {
-			// Place the value of the backbuffer into
-			// the framebuffer
-			PutUInt32(frameAddr, backBuffer[j][i]);
-			frameAddr += 4;
-		}
-	}
+	//memcpy((unsigned int*)frameAddr, &backBuffer, 800 * 600 * sizeof(unsigned int));
 }
 
 /*
@@ -209,7 +186,7 @@ void UpdateGraphics(void)
 	// All graphics should be rendered to the
 	// back buffer.
 	RenderBackground();
-	RenderImage(0, 0, 800, 600, &imageSplash);
+	//RenderImage(0, 0, 800, 600, &imageSplash);
 	RenderDebugLog();
 	// Swap the back buffer info with that of the
 	// frame buffer.

@@ -7,5 +7,5 @@
 
 #include "../include/types.h"
 
-u32 MailboxWrite(void* input, u32 mailbox);
-u32 MailboxRead(u32 mailbox);
+u32 MailboxWrite(u32 input, u32 channel);
+u32 MailboxRead(u32 channel);

@@ -35,10 +35,6 @@ str r1,[r0,#4]
 bl _Setup
 bl InitDebug
 
-/*
-* Initialise the USB Driver
-*/
-
 mov sp, #0x8000
 bl UsbInitialise
 bl KeyboardInit
@@ -55,4 +51,14 @@ bl Entrypoint
 GetTickCount:
 	ldr r0, =0x20003004
 	ldr r0, [r0]
+	bx lr
+
+/*
+* Enable DMA0
+*/
+.globl EnableDMA
+EnableDMA:
+	ldr r0, =0x20007FF0
+	mov r1, #0
+	str r1, [r0]
 	bx lr

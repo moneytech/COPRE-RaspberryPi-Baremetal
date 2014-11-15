@@ -9,13 +9,6 @@
 
 typedef void (*keyBinding)(void);
 
-#ifndef __cplusplus
-	typedef enum {
-		false = 0,
-		true = 1,
-	} bool;
-#endif
-
 extern unsigned int KeyCode(char);
 extern void BindKey(unsigned char code, keyBinding event);
 extern void OnKeyboardDisconnected(keyBinding func);
