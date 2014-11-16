@@ -1,3 +1,27 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2014 Niall Frederick Weedon, Timothy Stanley
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 /****************************************************
 * graphics.c
 * By:
@@ -27,7 +51,10 @@ static unsigned int m_bitDepth;
 static unsigned int m_framebufferAddress;
 
 unsigned int bgColour;
-unsigned int backBuffer[600][800];
+// Need to implement a proper back buffer
+// (double-height vbuffer) at some point as
+// this is baaad
+unsigned int backBuffer[1080][1920];
 
 unsigned int GetFramebufferAddress(void) {
 	return m_framebufferAddress;
@@ -91,7 +118,8 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 void RenderBackground(void)
 {
 	//memset(&backBuffer, bgColour, 800 * 600 * sizeof(unsigned int));
-	GPUClearScreen(m_framebufferAddress);
+	//GPUClearScreen((u32)&backBuffer, bgColour);
+	GPUClearScreen(m_framebufferAddress, bgColour);
 }
 
 /*
@@ -174,7 +202,7 @@ void RenderFont(char * text, u32 x, u32 y)
 */
 void SwapBuffers(void) {
 	unsigned int frameAddr; frameAddr = m_framebufferAddress;
-	//memcpy((unsigned int*)frameAddr, &backBuffer, 800 * 600 * sizeof(unsigned int));
+	memcpy((unsigned int*)frameAddr, &backBuffer, 1920 * 1080 * sizeof(unsigned int));
 }
 
 /*
@@ -187,10 +215,10 @@ void UpdateGraphics(void)
 	// back buffer.
 	RenderBackground();
 	//RenderImage(0, 0, 800, 600, &imageSplash);
-	RenderDebugLog();
+	//RenderDebugLog();
 	// Swap the back buffer info with that of the
 	// frame buffer.
-	SwapBuffers();
+	//SwapBuffers();
 
 	bgColour += 0x00010101;
 }

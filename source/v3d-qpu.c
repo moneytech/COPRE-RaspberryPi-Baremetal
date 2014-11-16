@@ -1,3 +1,27 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2014 Niall Frederick Weedon, Timothy Stanley
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 /****************************************************
 * v3d-qpu.c
 * By:
@@ -6,6 +30,7 @@
 ****************************************************/
 
 #include "../include/v3d-qpu.h"
+#include "../include/v3d-list.h"
 #include "../include/mailbox.h"
 #include "../include/debug.h"
 #include "../include/csud/platform.h"
@@ -206,26 +231,17 @@ bool TestControlLists(void) {
 	return true;
 }
 
-void AddWord(u8** list, u32 word) {
-	*((*list)++) = word & 0xff;
-	*((*list)++) = (word >> 8) & 0xff;
-	*((*list)++) = (word >> 16) & 0xff;
-	*((*list)++) = (word >> 24) & 0xff;
-}
-
-void AddShort(u8** list, u16 data) {
-	*((*list)++) = data & 0xff;
-	*((*list)++) = (data >> 8) & 0xff;
-}
-
-// (Still working on this)
-bool GPUClearScreen(u32 framebufferAddress) {
+/*
+* GPUClearScreen:
+* Clear the screen with a specific colour using the GPU.
+* u32 framebufferAddress: The address to write to.
+* u32 clearColour: The colour to clear the screen with.
+*/
+bool GPUClearScreen(u32 framebufferAddress, u32 clearColour) {
 	u32 handle, addr;
-	int i;
 	u8 x, y;
 
-	// 8MB buffer for now
-	handle = AllocateGPUMemory(0x800000, 0x1000, MEM_FLAG_COHERENT | MEM_FLAG_ZERO);
+	handle = AllocateGPUMemory(0x4000, 0x1000, MEM_FLAG_COHERENT | MEM_FLAG_ZERO);
 
 	if(!handle) {
 		DebugLog("V3D: Unable to allocate memory.");
@@ -237,54 +253,51 @@ bool GPUClearScreen(u32 framebufferAddress) {
 	//DebugLog("GPU memory locked.");
 
 	u8* list = (u8*)addr;
-	i = 0;
 
 	// Clear colour
-	list[i++] = 114;
+	AddByte(&list, 114);
 	// White (has to be repeated twice
 	// for 32-bit colour)
-	AddWord(&list, 0xffffffff);
-	i += 4;
-	AddWord(&list, 0xffffffff);
-	i += 4;
-
+	AddWord(&list, clearColour);
+	AddWord(&list, clearColour);
 	AddWord(&list, 0);
-	i += 4;
 
-	list[i++] = 0;
+	AddByte(&list, 0);
 	// ---
 
 	// Tile rendering mode configuration
-	list[i++] = 113;
+	AddByte(&list, 113);
 	AddWord(&list, framebufferAddress);
-	i += 4;
 	// Screen dimensions
-	AddShort(&list, 800);
-	AddShort(&list, 600);
-	i += 4;
-	list[i++] = 0x04; // Framebuffer mode (linear rgba8888)
-	list[i++] = 0x00;
+	AddShort(&list, 1920);
+	AddShort(&list, 1080);
+	AddByte(&list, 0x04); // Framebuffer mode (linear rgba8888)
+	AddByte(&list, 0x00);
 	// ---
 
 	// 8 columns and rows
-	for(y = 0; y < 8; y++) {
-		for(x = 0; x < 10; x++) {
+	u8 maxYTiles = (1080 / 64) + 1;
+	u8 maxXTiles = (1920 / 64) + 1;
+
+	for(y = 0; y < maxYTiles; y++) {
+		for(x = 0; x < maxXTiles; x++) {
 			// Tile coordinates
-			list[i++] = 115;
-			list[i++] = x;
-			list[i++] = y;
+			AddByte(&list, 115);
+			AddByte(&list, x);
+			AddByte(&list, y);
 			// Store multisample
-			list[i++] = 24;
+			if(x == maxXTiles - 1 && y == maxYTiles - 1) {
+				AddByte(&list, 25); // Multisample End
+			} else {
+				AddByte(&list, 24); // Store multisample
+			}
 		}
 	}
-
-	list[i - 1] = 25; // Multisample end
-	list[i] = 0; // Nop
 
 	// Set up the V3D pipeline to execute the
 	// control list
 	v3d[V3D_CT1CA] = addr;
-	v3d[V3D_CT1EA] = addr + i;
+	v3d[V3D_CT1EA] = (u32)&list;
 
 	// Wait for execution to complete
 	while(v3d[V3D_CT1CS] & 0x20);

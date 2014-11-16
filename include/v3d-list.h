@@ -23,44 +23,15 @@ THE SOFTWARE.
 */
 
 /****************************************************
-* led.s
+* v3d-list.h
 * By:
 *  Niall Frederick Weedon (nweedon)
 *  Tim Stanley (Spike71m)
 ****************************************************/
-.section .led
-/*
-* Turn the OK LED on
-*/
-.globl OkLedOn
-OkLedOn:
-	push { r4 - r5 }
-	ldr r5,=0x20200000
-	/* 
-	* Set the 16th bit of r1. The 16th bit is
-	* for the 16th pin (the ACT/OK LED)
-	*/
-	mov r4,#1
-	lsl r4,#16
 
-	/* 
-	* Low: 40-48
-	* High: 28-36
-	* Set GPIO 16 to low, causing the LED to turn on.
-	*/
-	str r4,[r5,#40]
-	pop { r4 - r5 }
-	bx lr
+#include "../include/csud/types.h"
 
-/*
-* Turn the OK LED off
-*/
-.globl OkLedOff
-OkLedOff:
-	push { r4 }
-	ldr r5,=0x20200000
-	mov r4,#1
-	lsl r4,#16
-	str r4,[r5, #28]
-	pop { r4 }
-	bx lr
+extern void AddWord(u8** list, u32 word);
+extern void AddShort(u8** list, u16 data);
+extern void AddByte(u8 **list, u8 d);
+extern void AddFloat(u8 **list, float f);

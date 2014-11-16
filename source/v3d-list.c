@@ -23,44 +23,44 @@ THE SOFTWARE.
 */
 
 /****************************************************
-* led.s
+* v3d-list.c
+* V3D list helper by phire/hackdriver,
+* coverted to this kernel's typings.
+*
 * By:
 *  Niall Frederick Weedon (nweedon)
 *  Tim Stanley (Spike71m)
 ****************************************************/
-.section .led
-/*
-* Turn the OK LED on
-*/
-.globl OkLedOn
-OkLedOn:
-	push { r4 - r5 }
-	ldr r5,=0x20200000
-	/* 
-	* Set the 16th bit of r1. The 16th bit is
-	* for the 16th pin (the ACT/OK LED)
-	*/
-	mov r4,#1
-	lsl r4,#16
 
-	/* 
-	* Low: 40-48
-	* High: 28-36
-	* Set GPIO 16 to low, causing the LED to turn on.
-	*/
-	str r4,[r5,#40]
-	pop { r4 - r5 }
-	bx lr
+#include "../include/v3d-list.h"
 
-/*
-* Turn the OK LED off
-*/
-.globl OkLedOff
-OkLedOff:
-	push { r4 }
-	ldr r5,=0x20200000
-	mov r4,#1
-	lsl r4,#16
-	str r4,[r5, #28]
-	pop { r4 }
-	bx lr
+void AddWord(u8** list, u32 word) {
+	*((*list)++) = word & 0xff;
+	*((*list)++) = (word >> 8) & 0xff;
+	*((*list)++) = (word >> 16) & 0xff;
+	*((*list)++) = (word >> 24) & 0xff;
+}
+
+void AddShort(u8** list, u16 data) {
+	*((*list)++) = data & 0xff;
+	*((*list)++) = (data >> 8) & 0xff;
+}
+
+void AddByte(u8 **list, u8 d) {
+  *((*list)++) = d;
+}
+
+union {
+	float f;
+	u32 i;
+} floatToInt;
+
+void AddFloat(u8 **list, float f) {
+	floatToInt.f = f;
+	//u32 d = *((u32 *)&f);
+	u32 d = floatToInt.i;
+	*((*list)++) = (d) & 0xff;
+	*((*list)++) = (d >> 8)  & 0xff;
+	*((*list)++) = (d >> 16) & 0xff;
+	*((*list)++) = (d >> 24) & 0xff;
+}
