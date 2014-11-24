@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 #include "../include/v3d-qpu.h"
 #include "../include/v3d-list.h"
+#include "../include/v3d-controllist.h"
 #include "../include/mailbox.h"
 #include "../include/debug.h"
 #include "../include/csud/platform.h"
@@ -255,41 +256,25 @@ bool GPUClearScreen(u32 framebufferAddress, u32 clearColour) {
 	u8* list = (u8*)addr;
 
 	// Clear colour
-	AddByte(&list, 114);
-	// White (has to be repeated twice
-	// for 32-bit colour)
-	AddWord(&list, clearColour);
-	AddWord(&list, clearColour);
-	AddWord(&list, 0);
-
-	AddByte(&list, 0);
-	// ---
+	CLEAR_COLOUR(list, clearColour);
 
 	// Tile rendering mode configuration
-	AddByte(&list, 113);
-	AddWord(&list, framebufferAddress);
-	// Screen dimensions
-	AddShort(&list, 1920);
-	AddShort(&list, 1080);
-	AddByte(&list, 0x04); // Framebuffer mode (linear rgba8888)
-	AddByte(&list, 0x00);
-	// ---
+	TILE_RENDERING_MODE_CONFIG(list, framebufferAddress, 1920, 1080);
 
-	// 8 columns and rows
+	// Each tile is 64*64 pixels
 	u8 maxYTiles = (1080 / 64) + 1;
 	u8 maxXTiles = (1920 / 64) + 1;
 
 	for(y = 0; y < maxYTiles; y++) {
 		for(x = 0; x < maxXTiles; x++) {
 			// Tile coordinates
-			AddByte(&list, 115);
-			AddByte(&list, x);
-			AddByte(&list, y);
+			TILE_COORDINATE(list, x, y);
+
 			// Store multisample
 			if(x == maxXTiles - 1 && y == maxYTiles - 1) {
-				AddByte(&list, 25); // Multisample End
+				MULTISAMPLE_END(list); // Multisample End
 			} else {
-				AddByte(&list, 24); // Store multisample
+				MULTISAMPLE_STORE(list); // Store multisample
 			}
 		}
 	}

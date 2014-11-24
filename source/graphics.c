@@ -48,16 +48,24 @@ extern unsigned int imageFont;
 static unsigned int m_screenWidth;
 static unsigned int m_screenHeight;
 static unsigned int m_bitDepth;
-static unsigned int m_framebufferAddress;
+static unsigned int m_framebufferAddress, m_secondBufferAddress;
 
 unsigned int bgColour;
-// Need to implement a proper back buffer
-// (double-height vbuffer) at some point as
-// this is baaad
+bool incrementingBgColour;
+int m_currentlyDisplayedBuffer;
+
 unsigned int backBuffer[1080][1920];
 
-unsigned int GetFramebufferAddress(void) {
-	return m_framebufferAddress;
+unsigned int GetWriteFramebufferAddress(void) {
+	if(m_currentlyDisplayedBuffer == 0) {
+		return m_secondBufferAddress;
+	} else {
+		return m_framebufferAddress;
+	}
+}
+
+int GetWriteBufferIndex(void) {
+	return ((m_currentlyDisplayedBuffer + 1) % 2);
 }
 
 /*
@@ -77,6 +85,8 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 	m_bitDepth = bitDepth;
 
 	bgColour = 0xFF000000;
+	incrementingBgColour = true;
+	m_currentlyDisplayedBuffer = 0;
 
 	// Set up the frame buffer info	
 	framebuffer_init_t* init __attribute__((aligned(16)))
@@ -85,7 +95,7 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 	init->width = m_screenWidth;
 	init->height = m_screenHeight;
 	init->virtWidth = m_screenWidth;
-	init->virtHeight = m_screenHeight;
+	init->virtHeight = m_screenHeight * 2;
 	init->pitch = 0;
 	init->bitDepth = m_bitDepth;
 	init->xOffset = 0;
@@ -105,6 +115,7 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 	if (frameBufferResponse == 0)
 	{
 		m_framebufferAddress = init->ptr;
+		m_secondBufferAddress = init->ptr + (m_screenWidth * m_screenHeight);
 		return 1;
 	}
 	return 0;
@@ -119,6 +130,16 @@ void RenderBackground(void)
 {
 	//memset(&backBuffer, bgColour, 800 * 600 * sizeof(unsigned int));
 	//GPUClearScreen((u32)&backBuffer, bgColour);
+	//GPUClearScreen(GetWriteFramebufferAddress(), bgColour);
+
+	// If the primary buffer is currently being displayed,
+	// update the other one
+	/*if(m_currentlyDisplayedBuffer == 0) {
+		GPUClearScreen(m_secondBufferAddress, bgColour);
+	} else {
+		GPUClearScreen(m_framebufferAddress, bgColour);
+	}*/
+
 	GPUClearScreen(m_framebufferAddress, bgColour);
 }
 
@@ -133,7 +154,7 @@ void RenderBackground(void)
 */
 void RenderImage(u32 x, u32 y, u32 width, u32 height, u32* imageAddress) 
 {
-	memcpy(&backBuffer, imageAddress, width * height * sizeof(unsigned int));
+	//memcpy(&backBuffer, imageAddress, width * height * sizeof(unsigned int));
 }
 
 /*
@@ -203,6 +224,35 @@ void RenderFont(char * text, u32 x, u32 y)
 void SwapBuffers(void) {
 	unsigned int frameAddr; frameAddr = m_framebufferAddress;
 	memcpy((unsigned int*)frameAddr, &backBuffer, 1920 * 1080 * sizeof(unsigned int));
+
+	/*volatile unsigned int mailbuffer[32] __attribute__((aligned(16)));
+	int i; i = 0;
+	int y;
+
+	// If the primary buffer if being displayed,
+	// show set up the offset to show the second one
+	if(m_currentlyDisplayedBuffer == 0) {
+		y = m_screenHeight;
+		m_currentlyDisplayedBuffer = 1;
+	} else {
+		y = 0;
+		m_currentlyDisplayedBuffer = 0;
+	}
+
+	mailbuffer[i++] = 0;
+	mailbuffer[i++] = 0x00000000;
+	
+	mailbuffer[i++] = 0x48009; // Set virtual offset
+	mailbuffer[i++] = 8;
+	mailbuffer[i++] = 8;
+	mailbuffer[i++] = 0; // X offset
+	mailbuffer[i++] = y; // Y offset
+
+	mailbuffer[i++] = 0x00000000;
+	mailbuffer[0] = i * sizeof(*mailbuffer);
+
+	MailboxWrite((u32)mailbuffer, 8);
+	MailboxRead(8);*/
 }
 
 /*
@@ -220,5 +270,16 @@ void UpdateGraphics(void)
 	// frame buffer.
 	//SwapBuffers();
 
-	bgColour += 0x00010101;
+	if(incrementingBgColour) {
+		bgColour += 0x00010101;	
+	} else {
+		bgColour -= 0x00010101;
+	}
+	
+
+	if(bgColour == 0xFFFFFFFF) {
+		incrementingBgColour = false;
+	} else if(bgColour == 0xFF000000) {
+		incrementingBgColour = true;
+	}
 }
