@@ -140,7 +140,8 @@ void RenderBackground(void)
 		GPUClearScreen(m_framebufferAddress, bgColour);
 	}*/
 
-	GPUClearScreen(m_framebufferAddress, bgColour);
+	//GPUClearScreen(m_framebufferAddress, bgColour);
+	GPURenderTriangle(m_framebufferAddress, bgColour);
 }
 
 /*

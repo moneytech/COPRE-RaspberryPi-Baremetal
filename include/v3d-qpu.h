@@ -34,6 +34,7 @@ THE SOFTWARE.
 extern bool TestMailboxPropertyInterface(void);
 extern bool InitV3D(void);
 extern bool GPUClearScreen(u32 framebufferAddress, u32 clearColour);
+extern bool GPURenderTriangle(u32 framebufferAddress, u32 clearColour);
 
 // V3D Defines
 #define V3D_IDENT0 0
