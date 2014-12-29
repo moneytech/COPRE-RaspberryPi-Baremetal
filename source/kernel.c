@@ -35,6 +35,7 @@ THE SOFTWARE.
 #include "../include/debug.h"
 #include "../include/v3d-qpu.h"
 #include "../include/mailbox.h"
+#include "../include/uart.h"
 
 #define ON 1
 #define OFF 0
@@ -64,6 +65,11 @@ int Entrypoint(void) {
 
 	ledState = OFF;
 	ledCount = frameCount = keyboardCount = GetTickCount();
+
+	DebugLog("Enabling UART");
+	InitUART();
+
+	//UARTPutC(65);
 
 	DebugLog("Enabling DMA");
 	EnableDMA();
