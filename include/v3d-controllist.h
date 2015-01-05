@@ -198,11 +198,10 @@ THE SOFTWARE.
 	AddShort(&l, w); \
 	AddShort(&l, h);
 
-#define CONFIGURATION_STATE(l, config) \
+#define CONFIGURATION_STATE(l, data8, data16) \
 	AddByte(&l, CODE_CONFIGURATION_BITS); \
-	AddShort(&l, ((config & 0x00FF0000) >> 16)); \
-	AddShort(&l, ((config & 0x0000FF00) >> 8)); \
-	AddShort(&l, ((config & 0x000000FF) >> 0));
+	AddByte(&l, data8); \
+	AddShort(&l, data16);
 
 #define VIEWPORT_OFFSET(l, x_offset, y_offset) \
 	AddByte(&l, CODE_VIEWPORT_OFFSET); \
@@ -212,8 +211,21 @@ THE SOFTWARE.
 #define VERTEX(l, fx, fy, fz, r, g, b) \
 	AddShort(&l, (fx << 4)); \
 	AddShort(&l, (fy << 4)); \
-	AddFloat(&l, (fz << 4)); \
+	AddFloat(&l, 1.0f); \
 	AddFloat(&l, 1.0f); \
 	AddFloat(&l, r); \
 	AddFloat(&l, g); \
 	AddFloat(&l, b);
+
+#define VG_SHADER_STATE(l, shaderRecordAddress) \
+	AddByte(&l, CODE_VG_SHADER_STATE); \
+	AddWord(&l, shaderRecordAddress);
+
+#define PRIMITIVE_TYPE_TRIANGLES 0x10
+
+#define VG_INLINE_PRIMITIVES_START(l, primitiveType) \
+	AddByte(&l, CODE_VG_INLINE_PRIMITIVES); \
+	AddByte(&l, primitiveType);
+
+#define VG_INLINE_PRIMITIVES_END(l) \
+	AddWord(&l, 0xBFFF0000);

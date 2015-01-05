@@ -57,8 +57,8 @@ union {
 
 void AddFloat(u8 **list, float f) {
 	floatToInt.f = f;
-	//u32 d = *((u32 *)&f);
-	u32 d = floatToInt.i;
+	u32 d = *((u32 *)&f);
+	//u32 d = floatToInt.i;
 	*((*list)++) = (d) & 0xff;
 	*((*list)++) = (d >> 8)  & 0xff;
 	*((*list)++) = (d >> 16) & 0xff;

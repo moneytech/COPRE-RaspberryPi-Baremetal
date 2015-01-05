@@ -296,7 +296,7 @@ bool GPUClearScreen(u32 framebufferAddress, u32 clearColour) {
 bool GPURenderTriangle(u32 framebufferAddress, u32 clearColour) {
 	u32 handle, addr;
 	u8 x, y;
-
+	
 	// 8MB buffer
 	handle = AllocateGPUMemory(0x800000, 0x1000, MEM_FLAG_COHERENT | MEM_FLAG_ZERO);
 
@@ -326,28 +326,38 @@ bool GPURenderTriangle(u32 framebufferAddress, u32 clearColour) {
 
 	CLIP_WINDOW(list, 0, 0, 1920, 1080);
 
-	CONFIGURATION_STATE(list,
-		(ENABLE_BACKFACING_PRIMITIVES | 
-		ENABLE_FRONTFACING_PRIMITIVES |
-		EARLY_Z_ENABLE |
-		EARLY_Z_UPDATE));
+	//CONFIGURATION_STATE(list,
+	//	(ENABLE_BACKFACING_PRIMITIVES | 
+	//	ENABLE_FRONTFACING_PRIMITIVES |
+	//	EARLY_Z_ENABLE |
+	//	EARLY_Z_UPDATE));
+
+	//CONFIGURATION_STATE(list, (ENABLE_FRONTFACING_PRIMITIVES +
+	//	ENABLE_BACKFACING_PRIMITIVES +
+	//	CLOCKWISE_PRIMITIVES), 0);
+
+	// Configuration State
+	AddByte(&list, 96);
+	AddByte(&list, 0x03);
+	AddByte(&list, 0x00);
+	AddByte(&list, 0x02);
 
 	VIEWPORT_OFFSET(list, 0, 0);
 
 	// Triangle data
 	AddByte(&list, CODE_NV_SHADER_STATE);
-	AddWord(&list, addr + (u32)&shaderRecord); // Shader record
+	AddWord(&list, addr + 0x80); // Shader record
 
 	// Primitive Index List
 	AddByte(&list, CODE_INDEXED_PRIMITIVE_LIST);
 	AddByte(&list, 0x04); // 8-bit index, triangles
 	AddWord(&list, 3); // Length (number of triangles)
-	AddWord(&list, (u32)&vertexList); // List address
+	AddWord(&list, addr + 0x70); // List address
 	AddWord(&list, 2); // Maximu index
 	// ---
 
 	// End of Binning List
-	AddByte(&list, CODE_FLUSH);
+	AddByte(&list, CODE_FLUSH_ALL);
 	AddByte(&list, CODE_NOP);
 	AddByte(&list, CODE_HALT);
 	// ---
@@ -357,14 +367,14 @@ bool GPURenderTriangle(u32 framebufferAddress, u32 clearColour) {
 	AddByte(&shaderRecord, 6 * 4); // Stride
 	AddByte(&shaderRecord, 0xCC); // Number of uniforms (not used)
 	AddByte(&shaderRecord, 3); // Number of varyings
-	AddWord(&shaderRecord, (u32)&fragmentShader); // Fragment shader code
+	AddWord(&shaderRecord, addr + 0xfe00); // Fragment shader code
 	AddWord(&shaderRecord, addr + 0xff00); // Fragment shader uniforms
-	AddWord(&shaderRecord, (u32)&vertexData); // Vertex data address
+	AddWord(&shaderRecord, addr + 0xa0); // Vertex data address
 	// ---
 
 	// Vertex Data
 	VERTEX(vertexData,
-		1920,
+		960,
 		200,
 		1,
 		1.0f,
@@ -418,7 +428,7 @@ bool GPURenderTriangle(u32 framebufferAddress, u32 clearColour) {
 	// Tile rendering mode configuration
 	TILE_RENDERING_MODE_CONFIG(renderControlList, framebufferAddress, 1920, 1080);
 
-	TILE_COORDINATE(renderControlList, 0, 0);
+	//TILE_COORDINATE(renderControlList, 0, 0);
 	// Tile buffer general
 	AddByte(&renderControlList, 28);
 	AddShort(&renderControlList, 0);
@@ -428,8 +438,8 @@ bool GPURenderTriangle(u32 framebufferAddress, u32 clearColour) {
 	u8 maxYTiles = (1080 / 64) + 1;
 	u8 maxXTiles = (1920 / 64) + 1;
 
-	for(y = 0; y < maxYTiles; y++) {
-		for(x = 0; x < maxXTiles; x++) {
+	for(x = 0; x < maxXTiles; x++) {
+		for(y = 0; y < maxYTiles; y++) {
 			// Tile coordinates
 			TILE_COORDINATE(renderControlList, x, y);
 
@@ -458,6 +468,115 @@ bool GPURenderTriangle(u32 framebufferAddress, u32 clearColour) {
 	v3d[V3D_CT1CA] = addr + 0xe200;
 	//v3d[V3D_CT1EA] = (u32)&list;
 	v3d[V3D_CT1EA] = (u32)&renderControlList;
+
+	// Wait for execution to complete
+	while(v3d[V3D_CT1CS] & 0x20);
+
+	UnlockGPUMemory(handle);
+	FreeGPUMemory(handle);
+
+	return true;
+}
+
+bool GPURenderTriangle2(u32 framebufferAddress, u32 clearColour) {
+	u32 handle, addr;
+	u8 x, y;
+
+	handle = AllocateGPUMemory(0x4000, 0x1000, MEM_FLAG_COHERENT | MEM_FLAG_ZERO);
+
+	if(!handle) {
+		DebugLog("V3D: Unable to allocate memory.");
+		return false;
+	}
+
+	addr = LockGPUMemory(handle);
+	//LOGF("V3D: GPU memory locked at 0x%08x.", addr);
+	//DebugLog("GPU memory locked.");
+
+	u8* list = (u8*)addr;
+	u8* shaderRecord = (u8*)addr + 0x1000;
+	u8* fragmentShader = (u8*)addr + 0x2000;
+	u8* shaderUniforms = (u8*)addr + 0x3000;
+
+	// Clear colour
+	CLEAR_COLOUR(list, clearColour);
+
+	// Tile rendering mode configuration
+	TILE_RENDERING_MODE_CONFIG(list, framebufferAddress, 1920, 1080);
+
+	CONFIGURATION_STATE(list, (ENABLE_FRONTFACING_PRIMITIVES +
+		ENABLE_BACKFACING_PRIMITIVES +
+		CLOCKWISE_PRIMITIVES), 0);
+
+	VG_SHADER_STATE(list, (u32)&shaderRecord);
+
+	// Add Shader Record
+	AddByte(&shaderRecord, 0);
+	AddByte(&shaderRecord, 0);
+	AddByte(&shaderRecord, 2);
+	AddByte(&shaderRecord, 0);
+	// Fragment Shader Code Address
+	AddWord(&shaderRecord, (u32)&fragmentShader);
+	// Fragment Shader Uniforms Address
+	AddWord(&shaderRecord, (u32)&shaderUniforms);
+	// ---
+
+	// Write Shader Data
+	AddWord(&fragmentShader, 0x958e0dbf);
+	AddWord(&fragmentShader, 0xd1724823); /* mov r0, vary; mov r3.8d, 1.0 */
+	AddWord(&fragmentShader, 0x818e7176);
+	AddWord(&fragmentShader, 0x40024821); /* fadd r0, r0, r5; mov r1, vary */
+	AddWord(&fragmentShader, 0x818e7376);
+	AddWord(&fragmentShader, 0x10024862); /* fadd r1, r1, r5; mov r2, vary */
+	AddWord(&fragmentShader, 0x819e7540);
+	AddWord(&fragmentShader, 0x114248a3); /* fadd r2, r2, r5; mov r3.8a, r0 */
+	AddWord(&fragmentShader, 0x809e7009);
+	AddWord(&fragmentShader, 0x115049e3); /* nop; mov r3.8b, r1 */
+	AddWord(&fragmentShader, 0x809e7012);
+	AddWord(&fragmentShader, 0x116049e3); /* nop; mov r3.8c, r2 */
+	AddWord(&fragmentShader, 0x159e76c0);
+	AddWord(&fragmentShader, 0x30020ba7); /* mov tlbc, r3; nop; thrend */
+	AddWord(&fragmentShader, 0x009e7000);
+	AddWord(&fragmentShader, 0x100009e7); /* nop; nop; nop */
+	AddWord(&fragmentShader, 0x009e7000);
+	AddWord(&fragmentShader, 0x500009e7); /* nop; nop; sbdone */
+	// ---
+
+	// Add Shader Uniforms
+	AddWord(&shaderUniforms, 0xFFFFFFFF);
+	AddWord(&shaderUniforms, 0xFFFFFFFF);
+	// ---
+
+	VG_INLINE_PRIMITIVES_START(list, PRIMITIVE_TYPE_TRIANGLES);
+
+	AddShort(&list, 0); AddShort(&list, 0);
+	AddShort(&list, 639); AddShort(&list, 0);
+	AddShort(&list, 639); AddShort(&list, 479);
+
+	VG_INLINE_PRIMITIVES_END(list);
+
+	// Each tile is 64*64 pixels
+	u8 maxYTiles = (1080 / 64) + 1;
+	u8 maxXTiles = (1920 / 64) + 1;
+
+	for(y = 0; y < maxYTiles; y++) {
+		for(x = 0; x < maxXTiles; x++) {
+			// Tile coordinates
+			TILE_COORDINATE(list, x, y);
+
+			// Store multisample
+			if(x == maxXTiles - 1 && y == maxYTiles - 1) {
+				MULTISAMPLE_END(list); // Multisample End
+			} else {
+				MULTISAMPLE_STORE(list); // Store multisample
+			}
+		}
+	}
+
+	// Set up the V3D pipeline to execute the
+	// control list
+	v3d[V3D_CT1CA] = addr;
+	v3d[V3D_CT1EA] = addr + 0x4000;
 
 	// Wait for execution to complete
 	while(v3d[V3D_CT1CS] & 0x20);
