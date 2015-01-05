@@ -23,66 +23,39 @@ THE SOFTWARE.
 */
 
 /****************************************************
-* main.s
+* dma.h
 * By:
 *  Niall Frederick Weedon (nweedon)
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
-/*
-* Use the _start label (the ASM entry point)
-*/
-.section .init
-.globl _start
-_start:
+#include "../include/csud/platform.h"
 
-/* 
-* This command loads the physical address of the GPIO region into r0.
-*/
-ldr r0,=0x20200000
+#define DMA_BASE 0x20007000
+#define DMA_CONTROL_AND_STATUS 0x0
+#define DMA_CONTROL_BLOCK_ADDR 0x4
+#define DMA_TRANSFER_INFORMATION 0x8
+#define DMA_SOURCE_ADDRESS 0xC
+#define DMA_DEST_ADDRESS 0x10
+#define DMA_TRANSFER_LENGTH 0x14
+#define DMA_STRIDE 0x18
+#define DMA_NEXT_CONTROL_BLOCK 0x1C
+#define DMA_DEBUG 0x20
 
-/*
-* Set the GPIO function select for pin 16
-* 24 bytes for GPIO controller
-*	Each 4 bytes relate to 10 GPIO pins
-*	54 GPIO pins, therefore 6 sets of 4 bytes (24 bytes)
-*		Every 3 bytes relates to a particular GPIO pin
-*	16th pin is within pins 10-19, we need the 6th set of 3 bits
-*		This is where the number 18 comes from (below, 6 * 3)
-*	Use a 4 byte offset (below) as pin 16 is in the second set of pins
-*/
-mov r1,#1
-lsl r1,#18
+#define DMA_TI_SRC_INC (1 << 8)
+#define DMA_TI_DEST_INC (1 << 4)
+#define DMA_TI_2D_MODE (1 << 1)
 
-str r1,[r0,#4]
+typedef struct {
+	u32 transferInformation;
+	u32 sourceAddr;
+	u32 destAddr;
+	u32 len;
+	u32 stride;
+	u32 nextControlBlockAddr;
+	u32 reserved1;
+	u32 reserved2;
+} DMACB;
 
-bl _Setup
-bl InitDebug
-
-mov sp, #0x8000
-bl UsbInitialise
-bl KeyboardInit
-
-/*
-* Move to the C Entry Point
-*/
-bl Entrypoint
-
-/*
-* Return System clock count
-*/
-.globl GetTickCount
-GetTickCount:
-	ldr r0, =0x20003004
-	ldr r0, [r0]
-	bx lr
-
-/*
-* Enable DMA0
-*/
-.globl EnableDMA
-EnableDMA:
-	ldr r0, =0x20007FF0 
-	mov r1, #1
-	str r1, [r0]
-	bx lr
+extern void DMATransfer(u32 source, u32 dest, int len, int channel);
+extern void DMATransfer2D(u32 source, u32 dest, short widthBytes, short height, int channel);

@@ -26,7 +26,7 @@ THE SOFTWARE.
 * kernel.c
 * By:
 *  Niall Frederick Weedon (nweedon)
-*  Tim Stanley (Spike71m) test
+*  Tim Stanley (Spike71m)
 ****************************************************/
 
 #include "../include/csud/platform.h"
@@ -36,6 +36,7 @@ THE SOFTWARE.
 #include "../include/v3d-qpu.h"
 #include "../include/mailbox.h"
 #include "../include/uart.h"
+#include "../include/dma.h"
 
 #define ON 1
 #define OFF 0
@@ -68,8 +69,6 @@ int Entrypoint(void) {
 
 	DebugLog("Enabling UART");
 	InitUART();
-
-	//UARTPutC(65);
 
 	DebugLog("Enabling DMA");
 	EnableDMA();

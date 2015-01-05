@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include "../include/types.h"
 #include "../include/mailbox.h"
 #include "../include/v3d-qpu.h"
+#include "../include/dma.h"
 
 extern void PutUInt32(unsigned int, unsigned int);
 extern unsigned int GetUInt32(unsigned int);
@@ -141,7 +142,11 @@ void RenderBackground(void)
 	}*/
 
 	//GPUClearScreen(m_framebufferAddress, bgColour);
-	GPURenderTriangle(m_framebufferAddress, bgColour);
+	//GPURenderTriangle(m_framebufferAddress, bgColour);
+
+	//DMATransfer((u32)&imageSplash, m_framebufferAddress, 800 * 600 * 4, 0);
+	DMATransfer2D((u32)&imageSplash, m_framebufferAddress, 800 * 4, 600, 0);
+	DMATransfer2D((u32)&imageSplash, m_framebufferAddress + 800 * 4, 800 * 4, 600, 0);
 }
 
 /*

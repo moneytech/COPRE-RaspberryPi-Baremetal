@@ -38,7 +38,8 @@ if args.image:
 		# x is an array of colour componens [r, g, b, r, g, b, ...]
 		# so step 3 for each full pixel
 		for i in range(0, len(x), 3):
-			raw = (255 << 24) + (x[i + 2] << 16) + (x[i + 1] << 8) + x[i]
+			#raw = (255 << 24) + (x[i + 2] << 16) + (x[i + 1] << 8) + x[i]
+			raw = (255 << 24) + (x[i] << 16) + (x[i + 1] << 8) + x[i + 2]
 			f.write(struct.pack('I', raw))
 
 	f.close()
