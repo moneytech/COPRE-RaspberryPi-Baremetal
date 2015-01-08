@@ -32,6 +32,11 @@ THE SOFTWARE.
 #include "../include/csud/platform.h"
 
 #define DMA_BASE 0x20007000
+// DMA_BASE + 0xFF0
+#define DMA_ENABLE (volatile u32*)0x20007FF0
+#define DMA_DISABLE_ENGINE(x) (0 << x)
+#define DMA_ENABLE_ENGINE(x) (1 << x)
+// Control Block Offsets
 #define DMA_CONTROL_AND_STATUS 0x0
 #define DMA_CONTROL_BLOCK_ADDR 0x4
 #define DMA_TRANSFER_INFORMATION 0x8
@@ -41,9 +46,11 @@ THE SOFTWARE.
 #define DMA_STRIDE 0x18
 #define DMA_NEXT_CONTROL_BLOCK 0x1C
 #define DMA_DEBUG 0x20
-
+// Transfer Information Flags
+#define DMA_TI_SRC_IGNORE (1 << 11)
 #define DMA_TI_SRC_INC (1 << 8)
 #define DMA_TI_DEST_INC (1 << 4)
+#define DMA_TI_WAIT_RESP (1 << 3)
 #define DMA_TI_2D_MODE (1 << 1)
 
 typedef struct {
@@ -57,5 +64,6 @@ typedef struct {
 	u32 reserved2;
 } DMACB;
 
+extern void DMAEnable(u32 channelBits);
 extern void DMATransfer(u32 source, u32 dest, int len, int channel);
-extern void DMATransfer2D(u32 source, u32 dest, short widthBytes, short height, int channel);
+extern void ImageToFrameBuffer(u32 source, u32 dest, short width, short height, int channel);

@@ -76,13 +76,3 @@ GetTickCount:
 	ldr r0, =0x20003004
 	ldr r0, [r0]
 	bx lr
-
-/*
-* Enable DMA0
-*/
-.globl EnableDMA
-EnableDMA:
-	ldr r0, =0x20007FF0 
-	mov r1, #1
-	str r1, [r0]
-	bx lr

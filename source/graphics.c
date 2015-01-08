@@ -55,7 +55,17 @@ unsigned int bgColour;
 bool incrementingBgColour;
 int m_currentlyDisplayedBuffer;
 
+// ----- Used for debugging -----
 unsigned int backBuffer[1080][1920];
+extern unsigned int GetTickCount(void);
+unsigned int updateTick;
+int bounceX = 0;
+int bounceY = 0;
+bool travellingRight = true;
+bool travellingDown = true;
+
+// ----- Image placement macros -----
+#define FRAME_BUFFER_OFFSET(x, y) (((y * m_screenWidth) + x) * 4)
 
 unsigned int GetWriteFramebufferAddress(void) {
 	if(m_currentlyDisplayedBuffer == 0) {
@@ -104,6 +114,8 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 	init->ptr = 0;
 	init->size = 0;
 
+	updateTick = GetTickCount();
+
 	// send the frame buffer info to channel 1
 	if (MailboxWrite((u32)init, 1) == 0)
 	{
@@ -119,6 +131,7 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 		m_secondBufferAddress = init->ptr + (m_screenWidth * m_screenHeight);
 		return 1;
 	}
+
 	return 0;
 }
 
@@ -129,24 +142,7 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 */
 void RenderBackground(void)
 {
-	//memset(&backBuffer, bgColour, 800 * 600 * sizeof(unsigned int));
-	//GPUClearScreen((u32)&backBuffer, bgColour);
-	//GPUClearScreen(GetWriteFramebufferAddress(), bgColour);
-
-	// If the primary buffer is currently being displayed,
-	// update the other one
-	/*if(m_currentlyDisplayedBuffer == 0) {
-		GPUClearScreen(m_secondBufferAddress, bgColour);
-	} else {
-		GPUClearScreen(m_framebufferAddress, bgColour);
-	}*/
-
-	//GPUClearScreen(m_framebufferAddress, bgColour);
-	//GPURenderTriangle(m_framebufferAddress, bgColour);
-
-	//DMATransfer((u32)&imageSplash, m_framebufferAddress, 800 * 600 * 4, 0);
-	DMATransfer2D((u32)&imageSplash, m_framebufferAddress, 800 * 4, 600, 0);
-	DMATransfer2D((u32)&imageSplash, m_framebufferAddress + 800 * 4, 800 * 4, 600, 0);
+	//GPUClearScreen(m_framebufferAddress, 0xff000000);
 }
 
 /*
@@ -161,6 +157,7 @@ void RenderBackground(void)
 void RenderImage(u32 x, u32 y, u32 width, u32 height, u32* imageAddress) 
 {
 	//memcpy(&backBuffer, imageAddress, width * height * sizeof(unsigned int));
+	ImageToFrameBuffer((u32)imageAddress, m_framebufferAddress + FRAME_BUFFER_OFFSET(x, y), width, height, 0);
 }
 
 /*
@@ -270,13 +267,43 @@ void UpdateGraphics(void)
 	// All graphics should be rendered to the
 	// back buffer.
 	RenderBackground();
-	//RenderImage(0, 0, 800, 600, &imageSplash);
+	RenderImage(bounceX, bounceY, 800, 600, &imageSplash);
+
+	if(GetTickCount() > (updateTick + 10000)) {
+		if(travellingRight == true) {
+			bounceX++;
+			if(bounceX + 800 >= 1920) {
+				travellingRight = false;
+			}
+		} else {
+			bounceX--;
+			if(bounceX <= 0) {
+				travellingRight = true;
+			}
+		}
+
+		if(travellingDown == true) {
+			bounceY++;
+			if(bounceY + 600 >= 1080) {
+				travellingDown = false;
+			}
+		} else {
+			bounceY--;
+			if(bounceY <= 0) {
+				travellingDown = true;
+			}
+		}
+
+		updateTick = GetTickCount();
+	}
+
 	//RenderDebugLog();
 	// Swap the back buffer info with that of the
 	// frame buffer.
 	//SwapBuffers();
+	//DMASwapBuffers(m_framebufferAddress + FRAME_BUFFER_OFFSET(0, 1920), m_framebufferAddress);
 
-	if(incrementingBgColour) {
+	/*if(incrementingBgColour) {
 		bgColour += 0x00010101;	
 	} else {
 		bgColour -= 0x00010101;
@@ -287,5 +314,5 @@ void UpdateGraphics(void)
 		incrementingBgColour = false;
 	} else if(bgColour == 0xFF000000) {
 		incrementingBgColour = true;
-	}
+	}*/
 }

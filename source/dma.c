@@ -35,6 +35,26 @@ THE SOFTWARE.
 extern void PutUInt32(unsigned int, unsigned int);
 extern unsigned int GetUInt32(unsigned int);
 
+/*
+* DMAEnable:
+* Enable DMA transfer channels.
+*
+* u32 channelBits: Combination of values produced by the
+* DMA_ENABLE_ENGINE macro.
+*/
+void DMAEnable(u32 channelBits) {
+	*DMA_ENABLE = channelBits;
+}
+
+/*
+* DMATransfer:
+* Transfer data over a DMA channel.
+*
+* u32 source: Transfer source address
+* u32 dest: Transfer destination address
+* int len: Byte length of data transfer
+* int channel: DMA transfer channel to use
+*/
 void DMATransfer(u32 source, u32 dest, int len, int channel) {
 	if(channel >= 0 && channel < 15) {
 		DMACB ctrlBlock __attribute__((aligned(256)));
@@ -59,18 +79,26 @@ void DMATransfer(u32 source, u32 dest, int len, int channel) {
 	}
 }
 
-// Currently test for 2D image transfer
-// to framebuffer
-void DMATransfer2D(u32 source, u32 dest, short widthBytes, short height, int channel) {
+/*
+* ImageToFrameBuffer:
+* Copy an image to the frame buffer, through a 2D DMA transfer.
+*
+* u32 source: Transfer source address
+* u32 dest: Transfer destination address (the framebuffer)
+* int width: The width of the image
+* int height: The height of the image
+* int channel: The DMA channel to use during the transfer 
+*/
+void ImageToFrameBuffer(u32 source, u32 dest, short width, short height, int channel) {
 	if(channel >= 0 && channel < 15) {
 		DMACB ctrlBlock __attribute__((aligned(256)));
 		u32 reg = DMA_BASE + (channel * 0x100);
-		short dStride = (1920 - (widthBytes / 4)) * 4;
+		short dStride = (1920 - width) * 4;
 
 		ctrlBlock.transferInformation = DMA_TI_SRC_INC | DMA_TI_DEST_INC | DMA_TI_2D_MODE;
 		ctrlBlock.sourceAddr = source;
 		ctrlBlock.destAddr = dest;
-		ctrlBlock.len = widthBytes + (height << 16);
+		ctrlBlock.len = (width * 4) + (height << 16);
 		ctrlBlock.stride = (dStride << 16);
 		ctrlBlock.nextControlBlockAddr = 0;
 		ctrlBlock.reserved1 = 0;
@@ -81,7 +109,7 @@ void DMATransfer2D(u32 source, u32 dest, short widthBytes, short height, int cha
 		PutUInt32(reg + DMA_CONTROL_AND_STATUS, 1);
 
 		// Wait for transfer completion
-		while((GetUInt32(reg + DMA_CONTROL_AND_STATUS) & 0x2) == 0) { };
+		while((GetUInt32(reg + DMA_CONTROL_AND_STATUS) & 0x1) == 1) { };
 		//DebugLog("DMA Transfer Complete.");
 	}
 }

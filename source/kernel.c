@@ -52,7 +52,6 @@ THE SOFTWARE.
 extern void OkLedOn(void);
 extern void OkLedOff(void);
 extern unsigned int GetTickCount(void);
-extern void EnableDMA(void);
 
 /*
 * Entrypoint:
@@ -71,7 +70,7 @@ int Entrypoint(void) {
 	InitUART();
 
 	DebugLog("Enabling DMA");
-	EnableDMA();
+	DMAEnable(DMA_ENABLE_ENGINE(0));
 
 	DebugLog("Testing MPI");
 
