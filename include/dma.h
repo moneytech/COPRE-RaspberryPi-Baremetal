@@ -66,4 +66,5 @@ typedef struct {
 
 extern void DMAEnable(u32 channelBits);
 extern void DMATransfer(u32 source, u32 dest, int len, int channel);
-extern void ImageToFrameBuffer(u32 source, u32 dest, short width, short height, int channel);
+extern void ImageToFrameBufferOneChannel(u32 source, u32 dest, short width, short height, int channel);
+extern void ImageToFrameBuffer(u32 source, u32 dest, short width, short height, u32 totalChannels);

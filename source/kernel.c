@@ -70,7 +70,8 @@ int Entrypoint(void) {
 	InitUART();
 
 	DebugLog("Enabling DMA");
-	DMAEnable(DMA_ENABLE_ENGINE(0));
+	DMAEnable(DMA_ENABLE_ENGINE(0) | DMA_ENABLE_ENGINE(1) | DMA_ENABLE_ENGINE(2) | DMA_ENABLE_ENGINE(3) |
+			  DMA_ENABLE_ENGINE(4) | DMA_ENABLE_ENGINE(5) | DMA_ENABLE_ENGINE(6) | DMA_ENABLE_ENGINE(7));
 
 	DebugLog("Testing MPI");
 

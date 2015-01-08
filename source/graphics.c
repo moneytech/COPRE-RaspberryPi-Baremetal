@@ -157,7 +157,8 @@ void RenderBackground(void)
 void RenderImage(u32 x, u32 y, u32 width, u32 height, u32* imageAddress) 
 {
 	//memcpy(&backBuffer, imageAddress, width * height * sizeof(unsigned int));
-	ImageToFrameBuffer((u32)imageAddress, m_framebufferAddress + FRAME_BUFFER_OFFSET(x, y), width, height, 0);
+
+	ImageToFrameBuffer((u32)imageAddress, m_framebufferAddress + FRAME_BUFFER_OFFSET(x, y), width, height, 8);
 }
 
 /*
