@@ -67,6 +67,71 @@ bool travellingDown = true;
 // ----- Image placement macros -----
 #define FRAME_BUFFER_OFFSET(x, y) (((y * m_screenWidth) + x) * 4)
 
+// ----- Game Variables -----
+unsigned int boardTick;
+int currentPieceX, currentPieceY;
+// Displayed game board is 10*20, extra
+// space at the top is allowed for the pieces to
+// drop into the game board.
+int gameBoard[24][10] = {
+	{ 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 1, 1, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+}; 
+// Four pieces, dimensions 4 in x
+// and 2 in y.
+int pieces[7][2][4] = {
+	{ 
+		{ 0, 0, 0, 0 },
+		{ 1, 1, 1, 1 }
+	},
+	{
+		{ 1, 0, 0, 0 },
+		{ 1, 1, 1, 1 }	
+	},
+	{
+		{ 0, 0, 0, 1 },
+		{ 1, 1, 1, 1 }	
+	},
+	{
+		{ 1, 1, 0, 0 },
+		{ 1, 1, 0, 0 }	
+	},
+	{
+		{ 1, 1, 0, 0 },
+		{ 0, 1, 1, 0 }	
+	},
+	{
+		{ 0, 1, 1, 0 },
+		{ 1, 1, 0, 0 }	
+	},
+	{
+		{ 0, 1, 0, 0 },
+		{ 1, 1, 1, 0 }	
+	}
+};
+
 unsigned int GetWriteFramebufferAddress(void) {
 	if(m_currentlyDisplayedBuffer == 0) {
 		return m_secondBufferAddress;
@@ -115,6 +180,10 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 	init->size = 0;
 
 	updateTick = GetTickCount();
+	// ----- Game data -----
+	boardTick = updateTick;
+	currentPieceY = 0;
+	currentPieceX = 3;
 
 	// send the frame buffer info to channel 1
 	if (MailboxWrite((u32)init, 1) == 0)
@@ -142,7 +211,7 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 */
 void RenderBackground(void)
 {
-	//GPUClearScreen(m_framebufferAddress, 0xff000000);
+	GPUClearScreen(m_framebufferAddress, 0xff000000);
 }
 
 /*
@@ -259,6 +328,41 @@ void SwapBuffers(void) {
 	MailboxRead(8);*/
 }
 
+void GameUpdate(void) 
+{
+	if(GetTickCount() > (boardTick + 1000000)) {
+		// Place piece
+		int x, y, px, py;
+
+		px = 0; 
+		py = 0;
+
+		// Drop piece, stop when it hits the bottom
+		if(currentPieceY < 22) {
+			for(x = currentPieceX; x < (currentPieceX + 4); x++) {
+				py = 0;
+
+				for(y = currentPieceY; y < (currentPieceY + 3); y++) {
+					if(y == currentPieceY) {
+						// Clear the row above
+						gameBoard[y][x] = 0;
+					} else {
+						// Place the new piece items
+						gameBoard[y][x] = pieces[4][py][px];
+						py++;
+					}
+				}
+
+				px++;
+			}
+
+			currentPieceY++;
+		}
+
+		boardTick = GetTickCount();
+	}
+}
+
 /*
 * UpdateGraphics:
 * Main graphics updating loop.
@@ -268,9 +372,24 @@ void UpdateGraphics(void)
 	// All graphics should be rendered to the
 	// back buffer.
 	RenderBackground();
-	RenderImage(bounceX, bounceY, 800, 600, &imageSplash);
+	//RenderImage(bounceX, bounceY, 800, 600, &imageSplash);
 
-	if(GetTickCount() > (updateTick + 10000)) {
+	int x, y;
+
+	for(x = 0; x < 10; x++) {
+		for(y = 0; y < 24; y++) {
+			if(gameBoard[y][x] > 0) {
+				RenderImage(x * 32, y * 32, 32, 32, &imageSplash);
+			}
+		}
+	}
+
+	// Render bottom for debugging
+	for(x = 0; x < 10; x++) {
+		RenderImage(x * 32, 24 * 32, 32, 32, &imageSplash);
+	}
+
+	/*if(GetTickCount() > (updateTick + 10000)) {
 		if(travellingRight == true) {
 			bounceX++;
 			if(bounceX + 800 >= 1920) {
@@ -296,7 +415,7 @@ void UpdateGraphics(void)
 		}
 
 		updateTick = GetTickCount();
-	}
+	}*/
 
 	//RenderDebugLog();
 	// Swap the back buffer info with that of the

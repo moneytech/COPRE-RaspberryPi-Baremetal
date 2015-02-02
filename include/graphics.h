@@ -35,3 +35,4 @@ extern void SwapBuffers(void);
 extern void RenderPartImage(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned, unsigned int, unsigned int, unsigned int*);
 extern void RenderImage(unsigned int, unsigned, unsigned int, unsigned int, unsigned int*);
 extern void RenderFont(char *, unsigned int, unsigned int);
+extern void GameUpdate(void);

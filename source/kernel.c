@@ -100,13 +100,16 @@ int Entrypoint(void) {
 				tick = GetTickCount();
 				MEMORY_BARRIER();
 
+				GameUpdate();
+
 				// Framerate limiting doesn't work
-				if(totalSeconds < 10 && tick > frameCount + (1000000 / 6000)) {
+				if(totalSeconds < 60 && tick > frameCount + (1000000 / 6000)) {
 					UpdateGraphics();
 					framesRendered++;
-				} else if(totalSeconds >= 10 && !printedReport) {
+				} else if(totalSeconds >= 60 && !printedReport) {
 					DebugLog("Benchmark Complete @ 1920*1080");
-					LOGF("%d frames in 10 seconds", framesRendered);
+					LOGF("%d frames in 60 seconds", framesRendered);
+					LOGF("%d frames per second", (framesRendered / 60));
 					RenderDebugLog();
 					SwapBuffers();
 					printedReport = true;
