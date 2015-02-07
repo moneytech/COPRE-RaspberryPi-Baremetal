@@ -34,6 +34,7 @@ THE SOFTWARE.
 #include "../include/mailbox.h"
 #include "../include/v3d-qpu.h"
 #include "../include/dma.h"
+#include "../include/game.h"
 
 extern void PutUInt32(unsigned int, unsigned int);
 extern unsigned int GetUInt32(unsigned int);
@@ -44,6 +45,10 @@ extern void* memset(void* dest, int c, unsigned int count);
 // ----- Image data -----
 extern unsigned int imageSplash;
 extern unsigned int imageFont;
+extern unsigned int blockBlue;
+extern unsigned int blockGreen;
+extern unsigned int blockYellow;
+extern unsigned int blockRed;
 
 // ----- Frame buffer information -----
 static unsigned int m_screenWidth;
@@ -66,72 +71,6 @@ bool travellingDown = true;
 
 // ----- Image placement macros -----
 #define FRAME_BUFFER_OFFSET(x, y) (((y * m_screenWidth) + x) * 4)
-
-// ----- Game Variables -----
-unsigned int boardTick;
-int currentPieceX, currentPieceY, newPieceIndex;
-bool placeNewPiece;
-// Displayed game board is 10*20, extra
-// space at the top is allowed for the pieces to
-// drop into the game board.
-int gameBoard[24][10] = {
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-}; 
-// Four pieces, dimensions 4 in x
-// and 2 in y.
-int pieces[7][2][4] = {
-	{ 
-		{ 0, 0, 0, 0 },
-		{ 1, 1, 1, 1 }
-	},
-	{
-		{ 1, 0, 0, 0 },
-		{ 1, 1, 1, 1 }	
-	},
-	{
-		{ 0, 0, 0, 1 },
-		{ 1, 1, 1, 1 }	
-	},
-	{
-		{ 1, 1, 0, 0 },
-		{ 1, 1, 0, 0 }	
-	},
-	{
-		{ 1, 1, 0, 0 },
-		{ 0, 1, 1, 0 }	
-	},
-	{
-		{ 0, 1, 1, 0 },
-		{ 1, 1, 0, 0 }	
-	},
-	{
-		{ 0, 1, 0, 0 },
-		{ 1, 1, 1, 0 }	
-	}
-};
 
 unsigned int GetWriteFramebufferAddress(void) {
 	if(m_currentlyDisplayedBuffer == 0) {
@@ -181,13 +120,7 @@ u32 InitGraphics(u32 screenWidth, u32 screenHeight, u32 bitDepth)
 	init->size = 0;
 
 	updateTick = GetTickCount();
-	// ----- Game data -----
-	boardTick = updateTick;
-	currentPieceY = 0;
-	currentPieceX = 3;
-	newPieceIndex = 0;
-	placeNewPiece = false;
-
+	
 	// send the frame buffer info to channel 1
 	if (MailboxWrite((u32)init, 1) == 0)
 	{
@@ -345,88 +278,7 @@ void SwapBuffers(void) {
 	MailboxRead(8);
 }
 
-void GameUpdate(void) 
-{
-	int x, y, px, py;
 
-	if(placeNewPiece == true) {
-		// Secure all pieces currently on the board
-		for(x = 0; x < 10; x++) { 
-			for(y = 0; y < 24; y++) {
-				if(gameBoard[y][x] > 0) {
-					gameBoard[y][x] *= -1;
-				}
-			}
-		}
-
-		// Add a new piece
-		currentPieceX = 3;
-		currentPieceY = 0;
-		px = 0;
-		py = 0;
-
-		for(x = currentPieceX; x < (currentPieceX + 4); x++) {
-			py = 0;
-
-			for(y = currentPieceY; y < (currentPieceY + 2); y++) {
-				gameBoard[y][x] = pieces[newPieceIndex % 7][py][px];
-				py++;
-			}
-
-			px++;
-		}
-
-		newPieceIndex++;
-		placeNewPiece = false;
-	}
-
-	if(GetTickCount() > (boardTick + 500000)) {
-		// Place piece
-		px = 0; 
-		py = 0;
-
-		// Drop piece, stop when it hits the bottom
-		if(currentPieceY < 22) {
-			// Check if a piece is below the current one, 
-			// before it is dropped
-			for(x = currentPieceX; x < (currentPieceX + 4); x++) {
-				if(gameBoard[currentPieceY + 1][x] > 0 && gameBoard[currentPieceY + 2][x] < 0) {
-					placeNewPiece = true;
-				}
-			}
-
-			// Drop piece only if it can be
-			// (determined by the loop above)
-			if(placeNewPiece == false) {
-				px = 0;
-				py = 0;
-
-				for(x = currentPieceX; x < (currentPieceX + 4); x++) {
-					py = 0;
-
-					for(y = currentPieceY; y < (currentPieceY + 3); y++) {
-						if(y == currentPieceY) {
-							// Clear the row above
-							gameBoard[y][x] = 0;
-						} else if(gameBoard[y][x] >= 0) {
-							// Place the new piece items
-							gameBoard[y][x] = pieces[newPieceIndex][py][px];
-							py++;
-						}
-					}
-
-					px++;
-				}
-
-				currentPieceY++;
-			}
-		} else {
-			placeNewPiece = true;
-		}
-
-		boardTick = GetTickCount();
-	}
-}
 
 /*
 * UpdateGraphics:
@@ -439,12 +291,41 @@ void UpdateGraphics(void)
 	RenderBackground();
 	//RenderImage(bounceX, bounceY, 800, 600, &imageSplash);
 
-	int x, y;
+	int x, y, blockValue;
+	unsigned int* texture;
 
 	for(x = 0; x < 10; x++) {
 		for(y = 0; y < 24; y++) {
 			if(gameBoard[y][x] != 0) {
-				RenderImage(x * 32, y * 32, 32, 32, &imageSplash);
+				blockValue = gameBoard[y][x];
+
+				if(blockValue < 0) {
+					blockValue *= -1;
+				}
+
+				switch(blockValue) {
+					case 1:
+						texture = &blockBlue;
+						break;
+
+					case 2:
+						texture = &blockGreen;
+						break;
+
+					case 3:
+						texture = &blockYellow;
+						break;
+
+					case 4:
+						texture = &blockRed;
+						break;
+
+					default:
+						texture = &blockBlue;
+						break;
+				}
+
+				RenderImage(x * 32, y * 32, 32, 32, texture);
 			}
 		}
 	}

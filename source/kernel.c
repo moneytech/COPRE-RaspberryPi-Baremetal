@@ -37,6 +37,7 @@ THE SOFTWARE.
 #include "../include/mailbox.h"
 #include "../include/uart.h"
 #include "../include/dma.h"
+#include "../include/game.h"
 
 #define ON 1
 #define OFF 0
@@ -83,6 +84,9 @@ int Entrypoint(void) {
 			DebugLog("Initialising Graphics");
 			graphicsInitialised = InitGraphics(1920, 1080, 32);
 
+			DebugLog("Initialising Game");
+			GameInit();
+
 			framesRendered = 0;
 
 			// If the graphics don't initialise,
@@ -116,9 +120,9 @@ int Entrypoint(void) {
 				}
 
 				// Keyboard processing is really slow
-				/*if(tick > keyboardCount + (1000000 / 20)) {
+				if(tick > keyboardCount + (1000000 / 20)) {
 					ProcessKeyboardEvents();
-				}*/
+				}
 
 				// Switch state of OK/ACT LED every 1 second
 				if(tick > ledCount + 1000000) {

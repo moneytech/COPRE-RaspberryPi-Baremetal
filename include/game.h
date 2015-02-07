@@ -23,31 +23,13 @@ THE SOFTWARE.
 */
 
 /****************************************************
-* types.h
+* game.h
 * By:
 *  Niall Frederick Weedon (nweedon)
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
-#pragma once
+extern int gameBoard[24][10];
 
-#define NULL 0
-
-extern void PutUInt32(unsigned int, unsigned int);
-extern unsigned int GetUInt32(unsigned int);
-
-typedef unsigned int u32;
-typedef void (*keyBinding)(void);
-
-typedef struct framebuffer_init_t {
-	u32 width;
-	u32 height;
-	u32 virtWidth;
-	u32 virtHeight;
-	u32 pitch;
-	u32 bitDepth;
-	u32 xOffset;
-	u32 yOffset;
-	u32 ptr;
-	u32 size;
-} framebuffer_init_t;
+extern void GameInit(void);
+extern void GameUpdate(void);

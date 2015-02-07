@@ -40,3 +40,18 @@ imageSplash:
 imageFont:
 	.incbin "bin/font.png.bin"
 
+.global blockBlue
+blockBlue:
+	.incbin "bin/blockBlue.png.bin"
+
+.global blockGreen
+blockGreen:
+	.incbin "bin/blockGreen.png.bin"
+
+.global blockYellow
+blockYellow:
+	.incbin "bin/blockYellow.png.bin"
+
+.global blockRed
+blockRed:
+	.incbin "bin/blockRed.png.bin"
