@@ -251,9 +251,11 @@ bool MovePiece(direction_t moveDirection)
 	// Check if a piece is below the current one, 
 	// before it is dropped
 	for(x = currentPieceX; x < (currentPieceX + 4); x++) {
-		if(gameBoard[currentPieceY + moveY][x + moveX] > 0 && gameBoard[currentPieceY + moveY + 1][x + moveX] < 0) {
-			placeNewPiece = true;
-			return false;
+		for(y = currentPieceY; y < (currentPieceY + 2); y++) {
+			if(gameBoard[y][x + moveX] > 0 && gameBoard[y + moveY][x + moveX] < 0) {
+				placeNewPiece = true;
+				return false;
+			}
 		}
 	}
 
@@ -312,7 +314,7 @@ void CheckLines()
 {
 	int x, y, py, totalBlocks;
 
-	for(y = 23; y >= 0; y--) {
+	for(y = 23; y > 0; y--) {
 		totalBlocks = 0;
 
 		for(x = 0; x < 10; x++) {
@@ -325,7 +327,7 @@ void CheckLines()
 			// TODO: Score
 
 			// Move the upper pieces down
-			for(py = (y - 1); y >= 0; y--) {
+			for(py = (y - 1); py >= 0; py--) {
 				for(x = 0; x < 10; x++) {
 					gameBoard[py + 1][x] = gameBoard[py][x];
 					gameBoard[py][x] = 0;
