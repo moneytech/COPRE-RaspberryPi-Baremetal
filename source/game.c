@@ -44,6 +44,7 @@ void CheckLines(void);
 
 unsigned int boardTick;
 int currentPieceX, currentPieceY, newPieceIndex, pieceColour;
+int currentScore;
 bool placeNewPiece;
 
 // Displayed game board is 10*20, extra
@@ -138,6 +139,11 @@ void DropPiece(void) {
 	}
 }
 
+int GetScore()
+{
+	return currentScore;
+}
+
 void GameInit(void) 
 {
 	boardTick = GetTickCount();
@@ -146,6 +152,7 @@ void GameInit(void)
 	newPieceIndex = 0;
 	pieceColour = 1;
 	placeNewPiece = false;
+	currentScore = 0;
 
 	BindKey('A', MovePieceLeft);
 	BindKey('D', MovePieceRight);
@@ -325,7 +332,7 @@ void CheckLines()
 
 		if(totalBlocks == 10) {
 			// TODO: Score
-
+			currentScore++;
 			// Move the upper pieces down
 			for(py = (y - 1); py >= 0; py--) {
 				for(x = 0; x < 10; x++) {
