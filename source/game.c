@@ -38,12 +38,18 @@ typedef enum {
 	DOWN
 } direction_t;
 
+typedef enum {
+	CLOCKWISE = 0,
+	ANTICLOCKWISE
+} rot_direction_t;
+
 extern unsigned int GetTickCount(void);
 bool MovePiece(direction_t moveDirection);
+void RotatePiece(rot_direction_t direction);
 void CheckLines(void);
 
 unsigned int boardTick;
-int currentPieceX, currentPieceY, newPieceIndex, pieceColour;
+int currentPieceX, currentPieceY, pieceRotation, newPieceIndex, pieceColour;
 bool placeNewPiece;
 
 // Displayed game board is 10*20, extra
@@ -75,60 +81,221 @@ int gameBoard[24][10] = {
 	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 	{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 }; 
-// Four pieces, dimensions 4 in x
+// Four rotations for four pieces, dimensions 4 in x
 // and 2 in y.
-int pieces[7][2][4] = {
-	{ 
-		{ 0, 0, 0, 0 },
-		{ 1, 1, 1, 1 }
-	},
+int pieces[4][7][4][4] = {
+	// <rotation 0>
 	{
-		{ 1, 0, 0, 0 },
-		{ 1, 1, 1, 1 }	
+		{ 
+			{ 1, 1, 1, 1 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }
+		},
+		{
+			{ 1, 0, 0, 0 },
+			{ 1, 1, 1, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 0, 0, 1, 0 },
+			{ 1, 1, 1, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 1, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 1, 0, 0 },
+			{ 0, 1, 1, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 0, 1, 1, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 0, 1, 0, 0 },
+			{ 1, 1, 1, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		}
 	},
+	// </rotation 0>
+	// <rotation 1>
 	{
-		{ 0, 0, 0, 1 },
-		{ 1, 1, 1, 1 }	
+		{ 
+			{ 1, 0, 0, 0 },
+			{ 1, 0, 0, 0 },
+			{ 1, 0, 0, 0 },
+			{ 1, 0, 0, 0 }
+		},
+		{
+			{ 1, 1, 0, 0 },
+			{ 1, 0, 0, 0 },
+			{ 1, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 1, 0, 0 },
+			{ 0, 1, 0, 0 },
+			{ 0, 1, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 1, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 0, 1, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 1, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 0, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 1, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 0, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 1, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		}
 	},
+	// </rotation 1>
+	// <rotation 2>
 	{
-		{ 1, 1, 0, 0 },
-		{ 1, 1, 0, 0 }	
+		{ 
+			{ 0, 0, 0, 0 },
+			{ 1, 1, 1, 1 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }
+		},
+		{
+			{ 1, 1, 1, 0 },
+			{ 0, 0, 1, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 0, 0, 1, 0 },
+			{ 1, 1, 1, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 1, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 1, 0, 0 },
+			{ 0, 1, 1, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 0, 1, 1, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 1, 1, 0 },
+			{ 0, 1, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		}
 	},
+	// </rotation 2>
+	// <rotation 3>
 	{
-		{ 1, 1, 0, 0 },
-		{ 0, 1, 1, 0 }	
+		{ 
+			{ 1, 0, 0, 0 },
+			{ 1, 0, 0, 0 },
+			{ 1, 0, 0, 0 },
+			{ 1, 0, 0, 0 }
+		},
+		{
+			{ 0, 1, 0, 0 },
+			{ 0, 1, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 0, 0, 0 },
+			{ 1, 0, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 1, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 0, 1, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 1, 0, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 1, 0, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 1, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		},
+		{
+			{ 0, 1, 0, 0 },
+			{ 1, 1, 0, 0 },
+			{ 0, 1, 0, 0 },
+			{ 0, 0, 0, 0 }	
+		}
 	},
-	{
-		{ 0, 1, 1, 0 },
-		{ 1, 1, 0, 0 }	
-	},
-	{
-		{ 0, 1, 0, 0 },
-		{ 1, 1, 1, 0 }	
-	}
+	// </rotation 3>
 };
 
-int pieceWidths[7] = { 4, 4, 4, 2, 3, 3, 3 };
+int pieceWidths[7] = { 4, 3, 3, 2, 3, 3, 3 };
+int pieceHeights[7] = { 1, 2, 2, 2, 2, 2, 2 };
 
-void MovePieceDown(void) {
+void MovePieceDown(void) 
+{
 	if(placeNewPiece == false) {
 		MovePiece(DOWN);
 	}
 }
 
-void MovePieceLeft(void) {
+void MovePieceLeft(void) 
+{
 	if(placeNewPiece == false) {
 		MovePiece(LEFT);
 	}
 }
 
-void MovePieceRight(void) {
+void MovePieceRight(void) 
+{
 	if(placeNewPiece == false) {
 		MovePiece(RIGHT);
 	}
 }
 
-void DropPiece(void) {
+void DropPiece(void) 
+{
 	if(placeNewPiece == false) {
 		while(MovePiece(DOWN) == true) {
 
@@ -138,11 +305,22 @@ void DropPiece(void) {
 	}
 }
 
+void RotatePieceClockwise(void) 
+{
+	RotatePiece(CLOCKWISE);
+}
+
+void RotatePieceAnticlockwise(void) 
+{
+	RotatePiece(ANTICLOCKWISE);
+}
+
 void GameInit(void) 
 {
 	boardTick = GetTickCount();
 	currentPieceY = 0;
 	currentPieceX = 3;
+	pieceRotation = 0;
 	newPieceIndex = 0;
 	pieceColour = 1;
 	placeNewPiece = false;
@@ -151,6 +329,8 @@ void GameInit(void)
 	BindKey('D', MovePieceRight);
 	BindKey('S', MovePieceDown);
 	BindKey('Z', DropPiece); // TODO: Space bar
+	BindKey('Q', RotatePieceAnticlockwise);
+	BindKey('E', RotatePieceClockwise);
 }
 
 void GameUpdate(void) 
@@ -172,6 +352,7 @@ void GameUpdate(void)
 		// Add a new piece
 		currentPieceX = 3;
 		currentPieceY = 0;
+		pieceRotation = 0;
 		px = 0;
 		py = 0;
 
@@ -180,7 +361,7 @@ void GameUpdate(void)
 			py = 0;
 
 			for(y = currentPieceY; y < (currentPieceY + 2); y++) {
-				gameBoard[y][x] = pieces[newPieceIndex][py][px];
+				gameBoard[y][x] = pieces[pieceRotation][newPieceIndex][py][px];
 				py++;
 			}
 
@@ -207,9 +388,7 @@ void GameUpdate(void)
 		py = 0;
 
 		// Drop piece, stop when it hits the bottom
-		if(currentPieceY < 22) {
-			MovePiece(DOWN);
-		} else {
+		if(MovePiece(DOWN) == false) {
 			placeNewPiece = true;
 		}
 
@@ -217,10 +396,24 @@ void GameUpdate(void)
 	}
 }
 
+void ClearUnsecuredBlocks() 
+{
+	int x, y;
+
+	// Clear all non-secured pieces from the board
+	for(x = 0; x < 10; x++) {
+		for(y = 0; y < 24; y++) {
+			if(gameBoard[y][x] > 0) {
+				gameBoard[y][x] = 0;
+			}
+		}
+	}
+}
+
 bool MovePiece(direction_t moveDirection)
 {
 	int x, y, px, py;
-	int moveX, moveY;
+	int moveX, moveY, width, height;
 
 	switch(moveDirection) {
 		case DOWN:
@@ -244,14 +437,22 @@ bool MovePiece(direction_t moveDirection)
 			break;
 	}
 
-	if((currentPieceX + moveX) < 0 || (currentPieceX + moveX + pieceWidths[newPieceIndex]) > 10 || (currentPieceY + moveY) > 22) {
+	if(pieceRotation % 2 == 0) {
+		width = pieceWidths[newPieceIndex];
+		height = pieceHeights[newPieceIndex];
+	} else {
+		width = pieceHeights[newPieceIndex];
+		height = pieceWidths[newPieceIndex];
+	}
+
+	if((currentPieceX + moveX) < 0 || (currentPieceX + moveX + width) > 10 || (currentPieceY + moveY + height) > 24) {
 		return false;
 	}
 
 	// Check if a piece is below the current one, 
 	// before it is dropped
 	for(x = currentPieceX; x < (currentPieceX + 4); x++) {
-		for(y = currentPieceY; y < (currentPieceY + 2); y++) {
+		for(y = currentPieceY; y < (currentPieceY + 4); y++) {
 			if(gameBoard[y][x + moveX] > 0 && gameBoard[y + moveY][x + moveX] < 0) {
 				placeNewPiece = true;
 				return false;
@@ -264,9 +465,9 @@ bool MovePiece(direction_t moveDirection)
 	if(moveX != 0) {
 		int width = pieceWidths[newPieceIndex];
 
-		for(y = currentPieceY; y < (currentPieceY + 2); y++) {
-			if((pieces[newPieceIndex][y][0] > 0 && gameBoard[y][currentPieceX + moveX] < 0) ||
-				(pieces[newPieceIndex][y][width - 1] > 0 && gameBoard[y][currentPieceX + width - 1 + moveX] < 0)) {
+		for(y = currentPieceY; y < (currentPieceY + 4); y++) {
+			if((pieces[pieceRotation][newPieceIndex][y][0] > 0 && gameBoard[y][currentPieceX + moveX] < 0) ||
+				(pieces[pieceRotation][newPieceIndex][y][width - 1] > 0 && gameBoard[y][currentPieceX + width - 1 + moveX] < 0)) {
 				
 				return false;
 			}
@@ -276,14 +477,7 @@ bool MovePiece(direction_t moveDirection)
 	// Drop piece only if it can be
 	// (determined by the loop above)
 	if(placeNewPiece == false) {
-		// Clear all non-secured pieces from the board
-		for(x = 0; x < 10; x++) {
-			for(y = 0; y < 24; y++) {
-				if(gameBoard[y][x] > 0) {
-					gameBoard[y][x] = 0;
-				}
-			}
-		}
+		ClearUnsecuredBlocks();
 
 		// Place new piece in position
 		px = 0;
@@ -295,8 +489,8 @@ bool MovePiece(direction_t moveDirection)
 		for(x = currentPieceX; x < (currentPieceX + 4); x++) {
 			py = 0;
 
-			for(y = currentPieceY; y < (currentPieceY + 2); y++) {
-				if(gameBoard[y][x] == 0 && pieces[newPieceIndex][py][px] != 0) {
+			for(y = currentPieceY; y < (currentPieceY + 4); y++) {
+				if(gameBoard[y][x] == 0 && pieces[pieceRotation][newPieceIndex][py][px] != 0) {
 					gameBoard[y][x] = pieceColour;
 				}
 
@@ -337,6 +531,77 @@ void CheckLines()
 			// Increment y, so the same row will be checked
 			// again next time around.
 			y++;
+		}
+	}
+}
+
+void RotatePiece(rot_direction_t direction) 
+{
+	int indexChange = 0;
+	int x, y, px, py;
+	bool rotationValid;
+
+	switch(direction) {
+		case CLOCKWISE:
+			indexChange = 1;
+			break;
+
+		case ANTICLOCKWISE:
+			indexChange = -1;
+			break;
+
+		default:
+			break;
+	}
+
+	if(pieceRotation + indexChange < 0) {
+		pieceRotation = 3;
+	} else if(pieceRotation + indexChange > 3) {
+		pieceRotation = 0;
+	} else {
+		pieceRotation += indexChange;
+	}
+
+	px = 0;
+	py = 0;
+
+	// Determine whether the rotation will
+	// collide with any secured blocks. If so,
+	// the rotation is not valid.
+	rotationValid = true;
+
+	for(x = currentPieceX; x < (currentPieceX + 4); x++) {
+		py = 0;
+
+		for(y = currentPieceY; y < (currentPieceY + 4); y++) {
+			if(rotationValid == true && pieces[pieceRotation][newPieceIndex][py][px] != 0 && gameBoard[y][x] > 0) {
+				rotationValid = false;
+			}
+
+			py++;
+		}
+
+		px++;
+	}
+
+	// Place new block if the rotation is valid
+	if(rotationValid == true) {
+		ClearUnsecuredBlocks();
+		px = 0;
+		py = 0;
+
+		for(x = currentPieceX; x < (currentPieceX + 4); x++) {
+			py = 0;
+
+			for(y = currentPieceY; y < (currentPieceY + 4); y++) {
+				if(pieces[pieceRotation][newPieceIndex][py][px] != 0) {
+					gameBoard[y][x] = pieceColour;
+				}
+
+				py++;
+			}
+
+			px++;
 		}
 	}
 }

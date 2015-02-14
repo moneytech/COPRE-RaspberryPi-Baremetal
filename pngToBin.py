@@ -19,9 +19,16 @@ args = parser.parse_args()
 
 if args.image:
 	r = png.Reader(args.image)
+	pnginfo = r.read()
+	metadata = pnginfo[3]
+
+	# Default to 32-bit colour if planes < 3
+	if metadata['planes'] < 3:
+		metadata['planes'] = 4
+
 	# r.read returns a tuple of length 4, with the
 	# pixel data in index 2
-	data = list(r.read()[2])
+	data = list(pnginfo[2])
 	filename = args.image.split('/');
 	filename = filename[len(filename) - 1]
 
@@ -37,7 +44,7 @@ if args.image:
 		# data is list of rows, x is one row.
 		# x is an array of colour componens [r, g, b, r, g, b, ...]
 		# so step 3 for each full pixel
-		for i in range(0, len(x), 3):
+		for i in range(0, len(x), metadata['planes']):
 			#raw = (255 << 24) + (x[i + 2] << 16) + (x[i + 1] << 8) + x[i]
 			raw = (255 << 24) + (x[i] << 16) + (x[i + 1] << 8) + x[i + 2]
 			f.write(struct.pack('I', raw))
