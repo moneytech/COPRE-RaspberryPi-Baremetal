@@ -49,12 +49,8 @@ void RotatePiece(rot_direction_t direction);
 void CheckLines(void);
 
 unsigned int boardTick;
-<<<<<<< HEAD
 int currentPieceX, currentPieceY, pieceRotation, newPieceIndex, pieceColour;
-=======
-int currentPieceX, currentPieceY, newPieceIndex, pieceColour;
 int currentScore;
->>>>>>> 95bdf0b164e0468fc44c1d032fce73aaa7fbbc99
 bool placeNewPiece;
 
 // Displayed game board is 10*20, extra
@@ -310,7 +306,6 @@ void DropPiece(void)
 	}
 }
 
-<<<<<<< HEAD
 void RotatePieceClockwise(void) 
 {
 	RotatePiece(CLOCKWISE);
@@ -319,11 +314,11 @@ void RotatePieceClockwise(void)
 void RotatePieceAnticlockwise(void) 
 {
 	RotatePiece(ANTICLOCKWISE);
-=======
-int GetScore()
+}
+
+int GetScore(void)
 {
 	return currentScore;
->>>>>>> 95bdf0b164e0468fc44c1d032fce73aaa7fbbc99
 }
 
 void GameInit(void) 

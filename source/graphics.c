@@ -315,8 +315,6 @@ void SwapBuffers(void) {
 	MailboxRead(8);
 }
 
-
-
 /*
 * UpdateGraphics:
 * Main graphics updating loop.
@@ -372,8 +370,8 @@ void UpdateGraphics(void)
 		RenderImage(x * 32, 24 * 32, 32, 32, &imageSplash);
 	}
 
-	
-	RenderFontI(GetScore(), 50, 100);
+	RenderImage(320, 0, 800, 600, &imageSplash);
+	RenderFontI(GetScore(), 50, 768);
 
 	//RenderImage(100, 100, 32, 320, &imageFont);
 
