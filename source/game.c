@@ -49,7 +49,12 @@ void RotatePiece(rot_direction_t direction);
 void CheckLines(void);
 
 unsigned int boardTick;
+<<<<<<< HEAD
 int currentPieceX, currentPieceY, pieceRotation, newPieceIndex, pieceColour;
+=======
+int currentPieceX, currentPieceY, newPieceIndex, pieceColour;
+int currentScore;
+>>>>>>> 95bdf0b164e0468fc44c1d032fce73aaa7fbbc99
 bool placeNewPiece;
 
 // Displayed game board is 10*20, extra
@@ -305,6 +310,7 @@ void DropPiece(void)
 	}
 }
 
+<<<<<<< HEAD
 void RotatePieceClockwise(void) 
 {
 	RotatePiece(CLOCKWISE);
@@ -313,6 +319,11 @@ void RotatePieceClockwise(void)
 void RotatePieceAnticlockwise(void) 
 {
 	RotatePiece(ANTICLOCKWISE);
+=======
+int GetScore()
+{
+	return currentScore;
+>>>>>>> 95bdf0b164e0468fc44c1d032fce73aaa7fbbc99
 }
 
 void GameInit(void) 
@@ -324,6 +335,7 @@ void GameInit(void)
 	newPieceIndex = 0;
 	pieceColour = 1;
 	placeNewPiece = false;
+	currentScore = 0;
 
 	BindKey('A', MovePieceLeft);
 	BindKey('D', MovePieceRight);
@@ -519,7 +531,7 @@ void CheckLines()
 
 		if(totalBlocks == 10) {
 			// TODO: Score
-
+			currentScore++;
 			// Move the upper pieces down
 			for(py = (y - 1); py >= 0; py--) {
 				for(x = 0; x < 10; x++) {

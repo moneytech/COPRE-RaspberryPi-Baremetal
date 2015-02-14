@@ -33,3 +33,4 @@ extern int gameBoard[24][10];
 
 extern void GameInit(void);
 extern void GameUpdate(void);
+extern int GetScore(void);

@@ -195,26 +195,23 @@ void RenderImage(u32 x, u32 y, u32 width, u32 height, u32* imageAddress)
 */
 void RenderPartImage(u32 x, u32 y, u32 width, u32 height, u32 offsetX, u32 offsetY, u32 imageWidth, u32 imageHeight, u32* imageAddress)
 {
-	/*int i, j, colour;
 	unsigned int* imgAddress;
 
-	if(imageAddress != 0) {
+	int yOffset;
+
+	if(m_currentlyDisplayedBuffer == 0) {
+		yOffset = 1080;
+	} else {
+		yOffset = 0;
+	}
+
+	if(imageAddress != 0) 
+	{
 		imgAddress = imageAddress;
 		imgAddress += ((offsetY * imageWidth) + offsetX);
 
-		for(i = 0; i < height; i++) 
-		{
-			for(j = 0; j < width; j++) 
-			{
-				if((x + j) >= 0 && (x + j) < 800 && (y + i) >= 0 && (y + i) < 600) {
-					colour = *imgAddress++;
-					backBuffer[y + i][x + j] = colour;
-				}
-			}
-
-			imgAddress += (imageWidth - width);
-		}
-	}*/
+		ImageToFrameBuffer((u32)imgAddress, m_framebufferAddress + FRAME_BUFFER_OFFSET(x, (y + yOffset)), width, height, 1);
+	}
 }
 
 /*
@@ -229,15 +226,55 @@ void RenderFont(char * text, u32 x, u32 y)
 	unsigned int counter; counter = 0;
 	unsigned int xOffset, yOffset;
 
-	if(text != 0) {
+	if(text != 0) 
+	{
 		while (text[counter] != 0) 
 		{
-			yOffset = ((text[counter] - 32) / 16);
-			xOffset = ((text[counter] - 32) - (yOffset * 16));
-			RenderPartImage(x + (counter * 8), y, 8, 16, xOffset * 8, yOffset * 16, 128, 96, &imageFont);
+			if (text[counter] >= 48 && text[counter] <= 57)
+			{
+				yOffset = (text[counter] - 48);
+				xOffset = 0;
+				//xOffset = ((text[counter] - 32) - (yOffset * 16));
+				RenderPartImage(x + (counter * 32), y, 32, 32, xOffset, yOffset * 32, 32, 320, &imageFont);
+				
+			}
 			counter++;
 		}
 	}
+}
+
+void RenderFontI(int number, u32 x, u32 y)
+{
+	char buffer[10];
+	char final[10];
+	if (number < 1000000000) //check to make sure the buffer wont overflow with a huge number
+	{
+		int i, digit; i = 9;
+		do 
+		{
+			digit = number % 10;
+			number = number / 10;
+			buffer[i]= digit + 0x30; //add on 48 to make it a char value
+			i--;
+		}while(number > 10);
+
+		buffer[i] = number + 0x30;
+	}
+
+	int j, counter;counter = 0;
+	for (j = 0; j < 10; j++)
+	{
+		if (buffer[j] > 0)
+		{
+			final[counter] = buffer[j];
+			counter++;
+		}	
+	}
+
+
+	RenderFont(final, x, y);
+
+
 }
 
 /*
@@ -334,6 +371,11 @@ void UpdateGraphics(void)
 	for(x = 0; x < 10; x++) {
 		RenderImage(x * 32, 24 * 32, 32, 32, &imageSplash);
 	}
+
+	
+	RenderFontI(GetScore(), 50, 100);
+
+	//RenderImage(100, 100, 32, 320, &imageFont);
 
 	SwapBuffers();
 }
