@@ -145,10 +145,11 @@ void ProcessKeyboardEvents(void) {
 			if(keyBindings[i] != NULL) {
 				keyDown = KeyboardGetKeyIsDown(keyboardAddress, i + 4);
 
-				if(keyDown == true) {
+				if(keyDown == true && keyWasDown[i] == false) {
 					DebugLog("Firing key-bound event.");
 					keyBindings[i]();
 				}
+				
 				keyWasDown[i] = keyDown;
 			}
 		}

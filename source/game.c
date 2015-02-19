@@ -51,7 +51,7 @@ void CheckLines(void);
 unsigned int boardTick;
 int currentPieceX, currentPieceY, pieceRotation, newPieceIndex, pieceColour;
 int currentScore;
-bool placeNewPiece;
+bool placeNewPiece, gameOver;
 
 // Displayed game board is 10*20, extra
 // space at the top is allowed for the pieces to
@@ -146,9 +146,9 @@ int pieces[4][7][4][4] = {
 			{ 0, 0, 0, 0 }	
 		},
 		{
+			{ 1, 0, 0, 0 },
+			{ 1, 0, 0, 0 },
 			{ 1, 1, 0, 0 },
-			{ 0, 1, 0, 0 },
-			{ 0, 1, 0, 0 },
 			{ 0, 0, 0, 0 }	
 		},
 		{
@@ -192,8 +192,8 @@ int pieces[4][7][4][4] = {
 			{ 0, 0, 0, 0 }	
 		},
 		{
-			{ 0, 0, 1, 0 },
 			{ 1, 1, 1, 0 },
+			{ 1, 0, 0, 0 },
 			{ 0, 0, 0, 0 },
 			{ 0, 0, 0, 0 }	
 		},
@@ -238,9 +238,9 @@ int pieces[4][7][4][4] = {
 			{ 0, 0, 0, 0 }	
 		},
 		{
-			{ 1, 0, 0, 0 },
-			{ 1, 0, 0, 0 },
 			{ 1, 1, 0, 0 },
+			{ 0, 1, 0, 0 },
+			{ 0, 1, 0, 0 },
 			{ 0, 0, 0, 0 }	
 		},
 		{
@@ -330,6 +330,7 @@ void GameInit(void)
 	newPieceIndex = 0;
 	pieceColour = 1;
 	placeNewPiece = false;
+	gameOver = false;
 	currentScore = 0;
 
 	BindKey('A', MovePieceLeft);
@@ -363,7 +364,20 @@ void GameUpdate(void)
 		px = 0;
 		py = 0;
 
-		// TODO: Game over if there are already pieces in the top 2 rows
+		// Check Game Over
+		for(x = 0; x < 10; x++) {
+			for(y = 0; y < 2; y++) {
+				if(gameBoard[y][x] != 0) {
+					gameOver = true;
+				}
+			}
+		}
+
+		if(gameOver == true) {
+			// Do something for game over
+		}
+
+		// Place New Piece
 		for(x = currentPieceX; x < (currentPieceX + 4); x++) {
 			py = 0;
 
