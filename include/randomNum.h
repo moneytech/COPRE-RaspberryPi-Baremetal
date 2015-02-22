@@ -23,17 +23,11 @@ THE SOFTWARE.
 */
 
 /****************************************************
-* graphics.h
+* randomNum.h
 * By:
 *  Niall Frederick Weedon (nweedon)
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
-extern unsigned int InitGraphics(unsigned int, unsigned int, unsigned int);
-extern void UpdateGraphics(void);
-extern void SwapBuffers(void);
-extern void RenderPartImage(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned, unsigned int, unsigned int, unsigned int*);
-extern void RenderImage(unsigned int, unsigned, unsigned int, unsigned int, unsigned int*);
-extern void RenderFont(char *, unsigned int, unsigned int);
-extern void RenderFontI(int, unsigned int, unsigned int);
-extern void GameUpdate(void);
+extern int GetRandomNumber();
+extern void InitilizeRandomGenerator(int);

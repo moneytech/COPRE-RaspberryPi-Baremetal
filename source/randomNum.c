@@ -23,17 +23,63 @@ THE SOFTWARE.
 */
 
 /****************************************************
-* graphics.h
+* RandomNum.c
 * By:
 *  Niall Frederick Weedon (nweedon)
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
-extern unsigned int InitGraphics(unsigned int, unsigned int, unsigned int);
-extern void UpdateGraphics(void);
-extern void SwapBuffers(void);
-extern void RenderPartImage(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned, unsigned int, unsigned int, unsigned int*);
-extern void RenderImage(unsigned int, unsigned, unsigned int, unsigned int, unsigned int*);
-extern void RenderFont(char *, unsigned int, unsigned int);
-extern void RenderFontI(int, unsigned int, unsigned int);
-extern void GameUpdate(void);
+int MT[623];
+int index;
+
+
+void InitilizeRandomGenerator(int seed)
+{
+	int i;
+
+	index = 0;
+	MT[0] = seed;
+	
+	for (i = 1; i < 623; i++)
+	{ 
+		// ^ XOR, >> shift right
+		MT[i] = (0x6c078965 * (MT[i-1] ^ (MT[i-1] >> 30)) + i);
+		//lowest 32 bits of the number
+		MT[i] &= 0xffffffff; 
+	}
+}
+
+void generateNumbers()
+{
+	int i, y;
+	for (i = 0; i < 624; i++)
+	{
+		y = (MT[i] & 0x80000000) + (MT[i + 1 % 624] & 0x7fffffff);//bit 31 of MT[i] + bits 0-30 of MT
+		MT[i] = MT[(i + 397) % 624] ^ (y >> 1);
+		if ((y % 2) != 0)
+		{
+			MT[i] = (MT[i] ^ 0x9908b0df);
+		}
+	}
+
+}
+
+int GetRandomNumber(void)
+{
+	int y;
+	if (index == 0)
+	{
+		generateNumbers();
+	}
+
+	y = MT[index];
+	y = y ^ (y >> 11);
+	y = y ^ ((y << 7) & (0x9d2c5680));
+	y = y ^ ((y << 15) & (0xefc60000));
+	y = y ^ (y >> 18);
+
+	index = (index + 1) % 624;
+	return y; 
+}
+
+

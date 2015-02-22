@@ -247,7 +247,7 @@ void RenderFontI(int number, u32 x, u32 y)
 {
 	char buffer[10];
 	char final[10];
-	if (number < 1000000000) //check to make sure the buffer wont overflow with a huge number
+	if (number >= 0 && number < 9999999999) //check to make sure the buffer wont overflow with a huge number
 	{
 		int i, digit; i = 9;
 		do 
@@ -259,22 +259,20 @@ void RenderFontI(int number, u32 x, u32 y)
 		}while(number > 10);
 
 		buffer[i] = number + 0x30;
-	}
+	
 
-	int j, counter;counter = 0;
-	for (j = 0; j < 10; j++)
-	{
-		if (buffer[j] > 0)
+		int j, counter;counter = 0;
+		for (j = 0; j < 10; j++)
 		{
-			final[counter] = buffer[j];
-			counter++;
-		}	
+			if (buffer[j] > 0)
+			{
+				final[counter] = buffer[j];
+				counter++;
+			}	
+		}
+
+		RenderFont(final, x, y);
 	}
-
-
-	RenderFont(final, x, y);
-
-
 }
 
 /*
@@ -370,9 +368,8 @@ void UpdateGraphics(void)
 		RenderImage(x * 32, 24 * 32, 32, 32, &imageSplash);
 	}
 
-	RenderImage(320, 0, 800, 600, &imageSplash);
+	//RenderImage(320, 0, 800, 600, &imageSplash);
 	RenderFontI(GetScore(), 50, 768);
-
 	//RenderImage(100, 100, 32, 320, &imageFont);
 
 	SwapBuffers();

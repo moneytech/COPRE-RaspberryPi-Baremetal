@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 #include "../include/csud/types.h"
 #include "../include/keyboard.h"
+#include "../include/randomNum.h"
 
 typedef enum {
 	LEFT = 0,
@@ -49,7 +50,7 @@ void RotatePiece(rot_direction_t direction);
 void CheckLines(void);
 
 unsigned int boardTick;
-int currentPieceX, currentPieceY, pieceRotation, newPieceIndex, pieceColour;
+int currentPieceX, currentPieceY, pieceRotation, currentPieceIndex, pieceColour;
 int currentScore;
 bool placeNewPiece, gameOver;
 
@@ -327,7 +328,7 @@ void GameInit(void)
 	currentPieceY = 0;
 	currentPieceX = 3;
 	pieceRotation = 0;
-	newPieceIndex = 0;
+	currentPieceIndex = 0;
 	pieceColour = 1;
 	placeNewPiece = false;
 	gameOver = false;
@@ -339,6 +340,8 @@ void GameInit(void)
 	BindKey('Z', DropPiece); // TODO: Space bar
 	BindKey('Q', RotatePieceAnticlockwise);
 	BindKey('E', RotatePieceClockwise);
+
+	InitilizeRandomGenerator(5550123);
 }
 
 void GameUpdate(void) 
@@ -382,25 +385,22 @@ void GameUpdate(void)
 			py = 0;
 
 			for(y = currentPieceY; y < (currentPieceY + 2); y++) {
-				gameBoard[y][x] = pieces[pieceRotation][newPieceIndex][py][px];
+				currentPieceIndex = GetRandomNumber() % 7; // get a new random number between 0-6
+				gameBoard[y][x] = pieces[pieceRotation][currentPieceIndex][py][px];
 				py++;
 			}
 
 			px++;
 		}
 
-		newPieceIndex++;
 		pieceColour++;
-
-		if(newPieceIndex == 7) {
-			newPieceIndex = 0;
-		}
 
 		if(pieceColour > 4) {
 			pieceColour = 1;
 		}
 
 		placeNewPiece = false;
+
 	}
 
 	if(GetTickCount() > (boardTick + 500000)) {
@@ -459,11 +459,11 @@ bool MovePiece(direction_t moveDirection)
 	}
 
 	if(pieceRotation % 2 == 0) {
-		width = pieceWidths[newPieceIndex];
-		height = pieceHeights[newPieceIndex];
+		width = pieceWidths[currentPieceIndex];
+		height = pieceHeights[currentPieceIndex];
 	} else {
-		width = pieceHeights[newPieceIndex];
-		height = pieceWidths[newPieceIndex];
+		width = pieceHeights[currentPieceIndex];
+		height = pieceWidths[currentPieceIndex];
 	}
 
 	if((currentPieceX + moveX) < 0 || (currentPieceX + moveX + width) > 10 || (currentPieceY + moveY + height) > 24) {
@@ -484,11 +484,11 @@ bool MovePiece(direction_t moveDirection)
 	// Check if a piece is to the left or right of the
 	// current one
 	if(moveX != 0) {
-		int width = pieceWidths[newPieceIndex];
+		int width = pieceWidths[currentPieceIndex];
 
 		for(y = currentPieceY; y < (currentPieceY + 4); y++) {
-			if((pieces[pieceRotation][newPieceIndex][y][0] > 0 && gameBoard[y][currentPieceX + moveX] < 0) ||
-				(pieces[pieceRotation][newPieceIndex][y][width - 1] > 0 && gameBoard[y][currentPieceX + width - 1 + moveX] < 0)) {
+			if((pieces[pieceRotation][currentPieceIndex][y][0] > 0 && gameBoard[y][currentPieceX + moveX] < 0) ||
+				(pieces[pieceRotation][currentPieceIndex][y][width - 1] > 0 && gameBoard[y][currentPieceX + width - 1 + moveX] < 0)) {
 				
 				return false;
 			}
@@ -511,7 +511,7 @@ bool MovePiece(direction_t moveDirection)
 			py = 0;
 
 			for(y = currentPieceY; y < (currentPieceY + 4); y++) {
-				if(gameBoard[y][x] == 0 && pieces[pieceRotation][newPieceIndex][py][px] != 0) {
+				if(gameBoard[y][x] == 0 && pieces[pieceRotation][currentPieceIndex][py][px] != 0) {
 					gameBoard[y][x] = pieceColour;
 				}
 
@@ -595,7 +595,7 @@ void RotatePiece(rot_direction_t direction)
 		py = 0;
 
 		for(y = currentPieceY; y < (currentPieceY + 4); y++) {
-			if(rotationValid == true && pieces[pieceRotation][newPieceIndex][py][px] != 0 && gameBoard[y][x] > 0) {
+			if(rotationValid == true && pieces[pieceRotation][currentPieceIndex][py][px] != 0 && gameBoard[y][x] > 0) {
 				rotationValid = false;
 			}
 
@@ -615,7 +615,7 @@ void RotatePiece(rot_direction_t direction)
 			py = 0;
 
 			for(y = currentPieceY; y < (currentPieceY + 4); y++) {
-				if(pieces[pieceRotation][newPieceIndex][py][px] != 0) {
+				if(pieces[pieceRotation][currentPieceIndex][py][px] != 0) {
 					gameBoard[y][x] = pieceColour;
 				}
 
