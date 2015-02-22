@@ -230,13 +230,26 @@ void RenderFont(char * text, u32 x, u32 y)
 	{
 		while (text[counter] != 0) 
 		{
-			if (text[counter] >= 48 && text[counter] <= 57)
+			if ((text[counter] >= 48 && text[counter] <= 57) )
 			{
 				yOffset = (text[counter] - 48);
 				xOffset = 0;
 				//xOffset = ((text[counter] - 32) - (yOffset * 16));
-				RenderPartImage(x + (counter * 32), y, 32, 32, xOffset, yOffset * 32, 32, 320, &imageFont);
-				
+				RenderPartImage(x + (counter * 25), y, 25, 32, xOffset, yOffset * 32, 25, 1152, &imageFont);
+			}
+			else if (text[counter] >= 97 && text[counter] <= 122)// lower case
+			{
+				yOffset = (text[counter] - 87);
+				xOffset = 0;
+
+				RenderPartImage(x + (counter * 25), y, 25, 32, xOffset, yOffset * 32, 25, 1152, &imageFont);
+			}
+			else if (text[counter] >= 65 && text[counter] <= 90)
+			{
+				yOffset = (text[counter] - 55);
+				xOffset = 0;
+
+				RenderPartImage(x + (counter * 25), y, 25, 32, xOffset, yOffset * 32, 25, 1152, &imageFont);
 			}
 			counter++;
 		}
@@ -370,6 +383,7 @@ void UpdateGraphics(void)
 
 	//RenderImage(320, 0, 800, 600, &imageSplash);
 	RenderFontI(GetScore(), 50, 768);
+	RenderFont("PITRIS", 500, 100);
 	//RenderImage(100, 100, 32, 320, &imageFont);
 
 	SwapBuffers();

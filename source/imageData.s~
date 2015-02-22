@@ -38,7 +38,7 @@ imageSplash:
 
 .globl imageFont
 imageFont:
-	.incbin "bin/bebausfont.png.bin"
+	.incbin "bin/tetrisfont.png.bin"
 
 .global blockBlue
 blockBlue:
