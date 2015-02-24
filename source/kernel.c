@@ -86,6 +86,9 @@ int Entrypoint(void) {
 
 			DebugLog("Initialising Game");
 			GameInit();
+			
+			DebugLog("Binding Game Keys");
+			BindGameKeys();
 
 			framesRendered = 0;
 
@@ -97,29 +100,29 @@ int Entrypoint(void) {
 			}
 
 			int totalSeconds = 0;
-			bool printedReport = false;
+			//bool printedReport = false;
 
 			while(1) {
 				MEMORY_BARRIER();
 				tick = GetTickCount();
 				MEMORY_BARRIER();
 
-				GameUpdate();
+				if(IsPaused() == false) {
+					GameUpdate();
+				}
 
-				// Framerate limiting doesn't work
-				if(totalSeconds < 60 && tick > frameCount + (1000000 / 6000)) {
+				if(tick > frameCount + (1000000 / 6000)) {
 					UpdateGraphics();
 					framesRendered++;
-				} else if(totalSeconds >= 60 && !printedReport) {
+				} /*else if(totalSeconds >= 60 && !printedReport) {
 					DebugLog("Benchmark Complete @ 1920*1080");
 					LOGF("%d frames in 60 seconds", framesRendered);
 					LOGF("%d frames per second", (framesRendered / 60));
 					RenderDebugLog();
 					SwapBuffers();
 					printedReport = true;
-				}
+				}*/
 
-				// Keyboard processing is really slow
 				if(tick > keyboardCount + (1000000 / 20)) {
 					ProcessKeyboardEvents();
 				}
@@ -133,10 +136,8 @@ int Entrypoint(void) {
 						OkLedOn();
 						ledState = ON;
 					}
-					ledCount = tick;
 
-					//LOGF("FPS: %i", framesRendered);
-					//framesRendered = 0;
+					ledCount = tick;
 					totalSeconds++;
 				}
 			}

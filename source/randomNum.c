@@ -54,7 +54,7 @@ void generateNumbers()
 	int i, y;
 	for (i = 0; i < 624; i++)
 	{
-		y = (MT[i] & 0x80000000) + (MT[i + 1 % 624] & 0x7fffffff);//bit 31 of MT[i] + bits 0-30 of MT
+		y = (MT[i] & 0x80000000) + (MT[(i + 1) % 624] & 0x7fffffff);//bit 31 of MT[i] + bits 0-30 of MT
 		MT[i] = MT[(i + 397) % 624] ^ (y >> 1);
 		if ((y % 2) != 0)
 		{

@@ -31,9 +31,17 @@ THE SOFTWARE.
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
+#define KEY_ENTER 40
+#define KEY_ESCAPE 41
+#define KEY_SPACE 44
+#define KEY_RIGHT 79
+#define KEY_LEFT 80
+#define KEY_DOWN 81
+#define KEY_UP 82
+
 typedef void (*keyBinding)(void);
 
-extern unsigned int KeyCode(char);
+extern unsigned int KeyCode(unsigned char);
 extern void BindKey(unsigned char code, keyBinding event);
 extern void OnKeyboardDisconnected(keyBinding func);
 extern void UnbindKey(unsigned char code);

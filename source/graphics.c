@@ -49,6 +49,8 @@ extern unsigned int blockBlue;
 extern unsigned int blockGreen;
 extern unsigned int blockYellow;
 extern unsigned int blockRed;
+extern unsigned int blockGrey;
+extern unsigned int boardBacker;
 
 // ----- Frame buffer information -----
 static unsigned int m_screenWidth;
@@ -61,7 +63,6 @@ bool incrementingBgColour;
 int m_currentlyDisplayedBuffer;
 
 // ----- Used for debugging -----
-//unsigned int backBuffer[1080][1920];
 extern unsigned int GetTickCount(void);
 unsigned int updateTick;
 int bounceX = 0;
@@ -155,7 +156,7 @@ void RenderBackground(void)
 		yOffset = 0;
 	}
 
-	GPUClearScreen(m_framebufferAddress + FRAME_BUFFER_OFFSET(0, yOffset), 0xff000000);
+	GPUClearScreen(m_framebufferAddress + FRAME_BUFFER_OFFSET(0, yOffset), 0xffd9d9d9);
 }
 
 /*
@@ -177,7 +178,7 @@ void RenderImage(u32 x, u32 y, u32 width, u32 height, u32* imageAddress)
 		yOffset = 0;
 	}
 
-	ImageToFrameBuffer((u32)imageAddress, m_framebufferAddress + FRAME_BUFFER_OFFSET(x, (y + yOffset)), width, height, 8);
+	ImageToFrameBuffer((u32)imageAddress, m_framebufferAddress + FRAME_BUFFER_OFFSET(x, (y + yOffset)), width, height, 4);
 }
 
 /*
@@ -269,7 +270,7 @@ void RenderFontI(int number, u32 x, u32 y)
 			number = number / 10;
 			buffer[i]= digit + 0x30; //add on 48 to make it a char value
 			i--;
-		}while(number > 10);
+		} while(number > 10);
 
 		buffer[i] = number + 0x30;
 	
@@ -335,13 +336,14 @@ void UpdateGraphics(void)
 	// All graphics should be rendered to the
 	// back buffer.
 	RenderBackground();
-	//RenderImage(bounceX, bounceY, 800, 600, &imageSplash);
 
 	int x, y, blockValue;
 	unsigned int* texture;
 
+	RenderImage(800, 128, 320, 768, &boardBacker);
+
 	for(x = 0; x < 10; x++) {
-		for(y = 0; y < 24; y++) {
+		for(y = 2; y < 24; y++) {
 			if(gameBoard[y][x] != 0) {
 				blockValue = gameBoard[y][x];
 
@@ -371,20 +373,24 @@ void UpdateGraphics(void)
 						break;
 				}
 
-				RenderImage(x * 32, y * 32, 32, 32, texture);
+				RenderImage(800 + (x * 32), 64 + (y * 32), 32, 32, texture);
 			}
 		}
 	}
 
-	// Render bottom for debugging
+	// Render bottom
 	for(x = 0; x < 10; x++) {
-		RenderImage(x * 32, 24 * 32, 32, 32, &imageSplash);
+		RenderImage(800 + (x * 32), 64 + (24 * 32), 32, 32, &blockGrey);
 	}
 
-	//RenderImage(320, 0, 800, 600, &imageSplash);
-	RenderFontI(GetScore(), 50, 768);
-	RenderFont("PITRIS", 500, 100);
-	//RenderImage(100, 100, 32, 320, &imageFont);
+	RenderFont("PITRIS", 800, 8);
+	RenderFont("SCORE", 800, 44);
+	RenderFontI(GetScore(), 900, 44);
+
+	RenderFont("CONTROLS", 0, 8);
+	RenderFont("A, S, D - Move Piece", 0, 44);
+	RenderFont("Q, E - Rotate Piece", 0, 80);
+	RenderFont("Z - Drop Piece", 0, 116);
 
 	SwapBuffers();
 }

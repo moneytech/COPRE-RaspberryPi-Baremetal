@@ -35,6 +35,7 @@ THE SOFTWARE.
 #include "../include/csud/types.h"
 #include "../include/types.h"
 #include "../include/debug.h"
+#include "../include/keyboard.h"
 
 #define MAX_KEYS 26
 
@@ -65,7 +66,7 @@ bool KeyboardGetKeyIsDown(unsigned int addr, unsigned short keycode) {
 *
 * Returns: (u32) Key code in the range CSUD recognises.
 */
-u32 KeyCode(char code) {
+u32 KeyCode(unsigned char code) {
 	if(code >= 'a' && code <= 'z') {
 		return code - 93;
 	} else if(code >= 'A' && code <= 'Z') {
@@ -83,7 +84,7 @@ u32 KeyCode(char code) {
 *
 * Returns: (u32) Key code in the range CSUD recognises.
 */
-void BindKey(char code, keyBinding event) {
+void BindKey(unsigned char code, keyBinding event) {
 	u32 index;
 	index = KeyCode(code) - 4;
 	keyBindings[index] = event;
@@ -94,7 +95,7 @@ void BindKey(char code, keyBinding event) {
 * Unbind an event to a particular keyboard key.
 * char code: The key event to unbind
 */
-void UnbindKey(char code) {
+void UnbindKey(unsigned char code) {
 	u32 index;
 	index = KeyCode(code) - 4;
 	keyBindings[index] = NULL;

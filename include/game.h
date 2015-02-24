@@ -32,5 +32,7 @@ THE SOFTWARE.
 extern int gameBoard[24][10];
 
 extern void GameInit(void);
+extern void BindGameKeys(void);
 extern void GameUpdate(void);
 extern int GetScore(void);
+extern bool IsPaused(void);

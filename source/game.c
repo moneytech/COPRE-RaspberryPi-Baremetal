@@ -48,11 +48,12 @@ extern unsigned int GetTickCount(void);
 bool MovePiece(direction_t moveDirection);
 void RotatePiece(rot_direction_t direction);
 void CheckLines(void);
+void GameInit(void);
 
 unsigned int boardTick;
 int currentPieceX, currentPieceY, pieceRotation, currentPieceIndex, pieceColour;
 int currentScore;
-bool placeNewPiece, gameOver;
+bool placeNewPiece, paused, gameOver;
 
 // Displayed game board is 10*20, extra
 // space at the top is allowed for the pieces to
@@ -307,6 +308,15 @@ void DropPiece(void)
 	}
 }
 
+void StartGame(void)
+{
+	if(gameOver == true) {
+		GameInit();
+	}
+
+	paused = false;
+}
+
 void RotatePieceClockwise(void) 
 {
 	RotatePiece(CLOCKWISE);
@@ -324,6 +334,8 @@ int GetScore(void)
 
 void GameInit(void) 
 {
+	int x, y;
+
 	boardTick = GetTickCount();
 	currentPieceY = 0;
 	currentPieceX = 3;
@@ -331,17 +343,33 @@ void GameInit(void)
 	currentPieceIndex = 0;
 	pieceColour = 1;
 	placeNewPiece = false;
+	paused = true;
 	gameOver = false;
 	currentScore = 0;
 
+	InitilizeRandomGenerator(GetTickCount());
+
+	for(y = 0; y < 24; y++) {
+		for(x = 0; x < 10; x++) {
+			gameBoard[y][x] = 0;
+		}
+	}
+}
+
+void BindGameKeys(void)
+{
 	BindKey('A', MovePieceLeft);
 	BindKey('D', MovePieceRight);
 	BindKey('S', MovePieceDown);
-	BindKey('Z', DropPiece); // TODO: Space bar
+	BindKey('Z', DropPiece);
 	BindKey('Q', RotatePieceAnticlockwise);
 	BindKey('E', RotatePieceClockwise);
+	BindKey('P', StartGame);
+}
 
-	InitilizeRandomGenerator(5550123);
+bool IsPaused(void)
+{
+	return paused;
 }
 
 void GameUpdate(void) 
@@ -386,6 +414,11 @@ void GameUpdate(void)
 
 			for(y = currentPieceY; y < (currentPieceY + 2); y++) {
 				currentPieceIndex = GetRandomNumber() % 7; // get a new random number between 0-6
+
+				if(currentPieceIndex < 0) {
+					currentPieceIndex *= -1;
+				}
+
 				gameBoard[y][x] = pieces[pieceRotation][currentPieceIndex][py][px];
 				py++;
 			}

@@ -55,3 +55,11 @@ blockYellow:
 .global blockRed
 blockRed:
 	.incbin "bin/blockRed.png.bin"
+
+.global blockGrey
+blockGrey:
+	.incbin "bin/blockGrey.png.bin"
+
+.global boardBacker
+boardBacker:
+	.incbin "bin/backer.png.bin"
