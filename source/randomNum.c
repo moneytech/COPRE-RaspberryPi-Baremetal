@@ -29,6 +29,8 @@ THE SOFTWARE.
 *  Tim Stanley (Spike71m)
 ****************************************************/
 
+#include "../include/debug.h"
+
 int MT[623];
 int index;
 
@@ -37,6 +39,8 @@ void InitilizeRandomGenerator(int seed)
 {
 	int i;
 
+	DebugLog("Initialising random number generator");
+	
 	index = 0;
 	MT[0] = seed;
 	

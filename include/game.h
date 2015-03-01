@@ -36,3 +36,4 @@ extern void BindGameKeys(void);
 extern void GameUpdate(void);
 extern int GetScore(void);
 extern bool IsPaused(void);
+extern bool IsGameOver(void);

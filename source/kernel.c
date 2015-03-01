@@ -70,11 +70,11 @@ int Entrypoint(void) {
 	DebugLog("Enabling UART");
 	InitUART();
 
-	DebugLog("Enabling DMA");
+	DebugLog("Enabling DMA Channels");
 	DMAEnable(DMA_ENABLE_ENGINE(0) | DMA_ENABLE_ENGINE(1) | DMA_ENABLE_ENGINE(2) | DMA_ENABLE_ENGINE(3) |
 			  DMA_ENABLE_ENGINE(4) | DMA_ENABLE_ENGINE(5) | DMA_ENABLE_ENGINE(6) | DMA_ENABLE_ENGINE(7));
 
-	DebugLog("Testing MPI");
+	DebugLog("Testing Mailbox Interface");
 
 	if(TestMailboxPropertyInterface() == true) {
 		DebugLog("Initialising V3D");
@@ -100,7 +100,6 @@ int Entrypoint(void) {
 			}
 
 			int totalSeconds = 0;
-			//bool printedReport = false;
 
 			while(1) {
 				MEMORY_BARRIER();
@@ -114,14 +113,7 @@ int Entrypoint(void) {
 				if(tick > frameCount + (1000000 / 6000)) {
 					UpdateGraphics();
 					framesRendered++;
-				} /*else if(totalSeconds >= 60 && !printedReport) {
-					DebugLog("Benchmark Complete @ 1920*1080");
-					LOGF("%d frames in 60 seconds", framesRendered);
-					LOGF("%d frames per second", (framesRendered / 60));
-					RenderDebugLog();
-					SwapBuffers();
-					printedReport = true;
-				}*/
+				}
 
 				if(tick > keyboardCount + (1000000 / 20)) {
 					ProcessKeyboardEvents();

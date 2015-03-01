@@ -392,5 +392,10 @@ void UpdateGraphics(void)
 	RenderFont("Q, E - Rotate Piece", 0, 80);
 	RenderFont("Z - Drop Piece", 0, 116);
 
+	if(IsGameOver()) {
+		RenderFont("Game Over", 0, 178);
+		RenderFont("Press P to restart", 0, 214);
+	}
+
 	SwapBuffers();
 }

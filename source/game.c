@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include "../include/csud/types.h"
 #include "../include/keyboard.h"
 #include "../include/randomNum.h"
+#include "../include/debug.h"
 
 typedef enum {
 	LEFT = 0,
@@ -286,6 +287,7 @@ void MovePieceDown(void)
 void MovePieceLeft(void) 
 {
 	if(placeNewPiece == false) {
+		DebugLog("Moving piece left");
 		MovePiece(LEFT);
 	}
 }
@@ -293,6 +295,7 @@ void MovePieceLeft(void)
 void MovePieceRight(void) 
 {
 	if(placeNewPiece == false) {
+		DebugLog("Moving piece right");
 		MovePiece(RIGHT);
 	}
 }
@@ -300,6 +303,7 @@ void MovePieceRight(void)
 void DropPiece(void) 
 {
 	if(placeNewPiece == false) {
+		DebugLog("Dropping piece");
 		while(MovePiece(DOWN) == true) {
 
 		};
@@ -319,11 +323,13 @@ void StartGame(void)
 
 void RotatePieceClockwise(void) 
 {
+	DebugLog("Rotating piece clockwise");
 	RotatePiece(CLOCKWISE);
 }
 
 void RotatePieceAnticlockwise(void) 
 {
+	DebugLog("Rotating piece anticlockwise");
 	RotatePiece(ANTICLOCKWISE);
 }
 
@@ -372,11 +378,18 @@ bool IsPaused(void)
 	return paused;
 }
 
+bool IsGameOver(void) 
+{
+	return gameOver;
+}
+
 void GameUpdate(void) 
 {
 	int x, y, px, py;
 
 	if(placeNewPiece == true) {
+		DebugLog("Placing new piece");
+
 		// Secure all pieces currently on the board
 		for(x = 0; x < 10; x++) { 
 			for(y = 0; y < 24; y++) {
@@ -405,7 +418,7 @@ void GameUpdate(void)
 		}
 
 		if(gameOver == true) {
-			// Do something for game over
+			DebugLog("Game Over!");
 		}
 
 		// Place New Piece
@@ -572,7 +585,7 @@ void CheckLines()
 		}
 
 		if(totalBlocks == 10) {
-			// TODO: Score
+			DebugLog("Line filled!");
 			currentScore++;
 			// Move the upper pieces down
 			for(py = (y - 1); py >= 0; py--) {

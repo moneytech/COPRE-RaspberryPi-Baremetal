@@ -147,7 +147,7 @@ void ProcessKeyboardEvents(void) {
 				keyDown = KeyboardGetKeyIsDown(keyboardAddress, i + 4);
 
 				if(keyDown == true && keyWasDown[i] == false) {
-					DebugLog("Firing key-bound event.");
+					//DebugLog("Firing key-bound event.");
 					keyBindings[i]();
 				}
 				
